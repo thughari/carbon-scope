@@ -1,0 +1,75 @@
+<div class="grid gap-6 grid-cols-1 md:grid-cols-3 h-full">
+
+  <div class="glass-card p-6 flex flex-col justify-between relative overflow-hidden group">
+
+    <div class="absolute -right-8 -top-8 opacity-10 pointer-events-none grayscale">
+      <svg class="w-48 h-48 text-slate-200" fill="currentColor" viewBox="0 0 24 24">
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 19.93C7.05 19.44 4 16.08 4 12C4 11.38 4.08 10.79 4.21 10.21L9 15V16C9 17.1 9.9 18 11 18V19.93ZM17.9 17.39C17.64 16.58 16.9 16 16 16H15V13C15 12.45 14.55 12 14 12H8V10H10C10.55 10 11 9.55 11 9V7H13C14.1 7 15 6.1 15 5V4.59C17.93 5.78 20 8.65 20 12C20 14.08 19.2 15.97 17.9 17.39Z" />
+      </svg>
+    </div>
+
+    <div class="relative z-10 flex-1 flex flex-col justify-center">
+      <div class="flex justify-between items-start">
+        <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Total Emissions</p>
+        <span *ngIf="percentage < 99.9"
+          class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-indigo-400 border border-indigo-500/20">
+          {{ percentage | number:'1.1-1' }}% of Global
+        </span>
+      </div>
+
+      <div class="mt-2 flex items-baseline gap-2">
+        <span class="text-4xl font-bold text-white">{{ totalEmissions | number:'1.0-0' }}</span>
+        <span class="text-lg font-medium text-indigo-400">Mt</span>
+      </div>
+
+      <div class="mt-4">
+        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-gradient-to-r from-indigo-500 to-sky-400 rounded-full transition-all duration-1000 ease-out"
+            [style.width.%]="percentage">
+          </div>
+        </div>
+
+        <div class="mt-2 flex items-center justify-between">
+          <p class="text-xs text-slate-500">{{ gasLabel }}</p>
+          <p *ngIf="percentage >= 99.9" class="text-[10px] text-emerald-400 font-medium">Global View</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="glass-card p-6 flex flex-col justify-between group">
+    <div>
+      <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Highest Sector</p>
+      <h3 class="mt-3 text-2xl font-bold text-white capitalize break-words leading-tight" [title]="highestSector">
+        {{ highestSector || '--' }}
+      </h3>
+    </div>
+
+    <div class="mt-4 flex items-center gap-3">
+      <div class="px-3 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold">
+        Critical Source
+      </div>
+      <p class="text-xs text-slate-500">Requires attention</p>
+    </div>
+  </div>
+
+  <div class="glass-card p-6 flex flex-col justify-between">
+    <div>
+      <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">Analysis Year</p>
+      <div class="mt-2 flex items-center gap-3">
+        <span class="text-3xl font-bold text-white">{{ yearRange[1] }}</span>
+        <span
+          class="text-sm px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Latest</span>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 mt-2">
+      <a href="https://climatetrace.org/data" target="_blank">
+        Data from Climate TRACE <br /> (2015 - 2024 Dataset)
+      </a>
+    </p>
+  </div>
+
+</div>
