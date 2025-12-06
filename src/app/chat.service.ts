@@ -1,4 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
+import { environment } from '../environments/environment';
 
 export interface ChatMessage {
   sender: 'user' | 'bot';
@@ -8,7 +9,7 @@ export interface ChatMessage {
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private baseUrl = 'http://localhost:8080/api/ai/stream';
+  private baseUrl = `${environment.apiUrl}/api/ai/stream`;
 
   constructor(private ngZone: NgZone) {}
 

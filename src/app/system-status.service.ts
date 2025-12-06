@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, timer, of } from 'rxjs';
-import { switchMap, catchError, map, retry } from 'rxjs/operators';
+import { switchMap, catchError, map } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SystemStatusService {
-  private readonly healthUrl = 'http://localhost:8080/api/health';
+  private readonly healthUrl = `${environment.apiUrl}/api/health`;
 
   private isOnlineSubject = new BehaviorSubject<boolean>(false);
   public isOnline$ = this.isOnlineSubject.asObservable();
