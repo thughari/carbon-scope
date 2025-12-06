@@ -33,7 +33,7 @@ export class SectorChartsComponent
   constructor(private el: ElementRef, private zone: NgZone) {}
 
   ngAfterViewInit() {
-    this.initCharts();
+    setTimeout(() => this.initCharts(), 0);
 
     this.resizeObserver = new ResizeObserver(() => {
       this.triggerResizeSequence();
