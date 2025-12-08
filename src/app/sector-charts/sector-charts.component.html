@@ -2,7 +2,9 @@
   <div class="glass-card p-6 h-[400px] flex flex-col">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">Sector Comparison</h3>
-      <div class="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">Latest Data</div>
+      <div class="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+        {{ trendYears[trendYears.length - 1] }} Data
+      </div>
     </div>
     <div class="flex-1 w-full overflow-hidden">
       <div id="sectorBarChart" class="w-full h-full"></div>
@@ -12,7 +14,9 @@
   <div class="glass-card p-6 h-[400px] flex flex-col">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">Historical Trends</h3>
-      <div class="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">2015 - 2024</div>
+      <div class="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+        2015 - {{ trendYears[trendYears.length - 1] }}
+      </div>
     </div>
     <div class="flex-1 w-full overflow-hidden">
       <div id="trendLineChart" class="w-full h-full"></div>

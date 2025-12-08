@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Country } from '../../models/country-data';
+import { APP_CONFIG } from '../../models/app.constants';
 
 const GAS_OPTIONS = [
   { label: 'CO₂e (100yr)', value: 'co2e_100yr' },
@@ -16,6 +17,7 @@ export interface DashboardFilters {
   country: string | null;
   sector: string | null;
   gas: string;
+  year: number;
 }
 
 @Component({
@@ -24,21 +26,29 @@ export interface DashboardFilters {
   imports: [CommonModule, FormsModule],
   templateUrl: './filters-bar.component.html',
 })
-export class FiltersBarComponent {
+export class FiltersBarComponent implements OnInit{
   @Input() continents: string[] = [];
   @Input() countries: Country[] = [];
   @Input() sectors: string[] = [];
 
   gasOptions = GAS_OPTIONS;
+  years: number[] = [];
 
   @Input() filters: DashboardFilters = {
     continent: null,
-    country: 'IND',
+    country: APP_CONFIG.DEFAULT_COUNTRY,
     sector: null,
-    gas: 'co2e_100yr',
+    gas: APP_CONFIG.DEFAULT_GAS,
+    year: APP_CONFIG.END_YEAR
   };
 
   @Output() filtersChange = new EventEmitter<DashboardFilters>();
+
+  ngOnInit() {
+    for (let i = APP_CONFIG.END_YEAR; i >= APP_CONFIG.START_YEAR; i--) {
+      this.years.push(i);
+    }
+  }
 
   onChange(change: Partial<DashboardFilters>) {
     const updatedFilters = { ...this.filters, ...change };

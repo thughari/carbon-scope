@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkdownModule } from 'ngx-markdown';
 import { SystemStatusService } from '../system-status.service';
+import { APP_CONFIG } from '../../models/app.constants';
 
 @Component({
   selector: 'app-chat-panel',
@@ -22,7 +23,7 @@ import { SystemStatusService } from '../system-status.service';
 export class ChatPanelComponent {
   @Input() currentCountry: string | null = null;
   @Input() currentContinent: string | null = null;
-  @Input() currentYear: number = 2024;
+  @Input() currentYear: number = APP_CONFIG.END_YEAR;
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 

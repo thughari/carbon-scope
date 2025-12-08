@@ -1,0 +1,47 @@
+import { Country } from "./country-data";
+
+export const APP_CONFIG = {
+  START_YEAR: 2021,
+  END_YEAR: 2025,
+  DEFAULT_COUNTRY: 'IND',
+  DEFAULT_GAS: 'co2e_100yr'
+};
+
+export const ALL_COUNTRIES: Country[] = [
+  { code: 'USA', name: 'United States' },
+  { code: 'CHN', name: 'China' },
+  { code: 'IND', name: 'India' },
+  { code: 'RUS', name: 'Russia' },
+  { code: 'JPN', name: 'Japan' },
+  { code: 'DEU', name: 'Germany' },
+  { code: 'BRA', name: 'Brazil' },
+  { code: 'CAN', name: 'Canada' },
+  { code: 'GBR', name: 'United Kingdom' },
+  { code: 'ITA', name: 'Italy' },
+  { code: 'FRA', name: 'France' },
+  { code: 'KOR', name: 'South Korea' },
+  { code: 'AUS', name: 'Australia' },
+  { code: 'MEX', name: 'Mexico' },
+  { code: 'IDN', name: 'Indonesia' },
+  { code: 'SAU', name: 'Saudi Arabia' },
+  { code: 'ZAF', name: 'South Africa' },
+  { code: 'TUR', name: 'Turkey' },
+  { code: 'IRN', name: 'Iran' },
+  { code: 'ESP', name: 'Spain' },
+  { code: 'POL', name: 'Poland' },
+  { code: 'THA', name: 'Thailand' },
+  { code: 'ARG', name: 'Argentina' },
+  { code: 'NLD', name: 'Netherlands' },
+  { code: 'EGY', name: 'Egypt' },
+  { code: 'PAK', name: 'Pakistan' },
+  { code: 'VNM', name: 'Vietnam' },
+  { code: 'NGA', name: 'Nigeria' },
+  { code: 'MYS', name: 'Malaysia' },
+  { code: 'PHL', name: 'Philippines' },
+  { code: 'UKR', name: 'Ukraine' },
+  { code: 'BEL', name: 'Belgium' },
+  { code: 'VEN', name: 'Venezuela' },
+  { code: 'COL', name: 'Colombia' },
+  { code: 'ARE', name: 'United Arab Emirates' },
+  { code: 'SWE', name: 'Sweden' },
+];
