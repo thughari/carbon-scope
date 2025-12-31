@@ -29,10 +29,14 @@
 
         <div class="mt-3">
           <div class="flex flex-wrap items-baseline gap-x-1">
-            <span class="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-none">
-              {{ totalEmissions | number:'1.0-2' }}
-            </span>
-            <span class="text-lg font-medium text-indigo-400">Mt</span>
+            <span 
+            class="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight break-all" 
+            [title]="totalEmissions | number:'1.0-4'">
+            {{ totalEmissions | number:'1.0-2' }}
+          </span>
+          <span class="text-sm font-medium text-indigo-400">
+            Mt (Million Tonnes)
+          </span>
           </div>
         </div>
       </div>
