@@ -5,8 +5,8 @@ import { Country } from '../../models/country-data';
 import { APP_CONFIG } from '../../models/app.constants';
 
 const GAS_OPTIONS = [
-  { label: 'CO₂e (100yr)', value: 'co2e_100yr' },
-  { label: 'CO₂e (20yr)', value: 'co2e_20yr' },
+  { label: 'CO₂e (100yr GWP)', value: 'co2e_100yr' },
+  { label: 'CO₂e (20yr GWP)', value: 'co2e_20yr' },
   { label: 'CO₂ Only', value: 'co2' },
   { label: 'Methane (CH₄)', value: 'ch4' },
   { label: 'Nitrous Oxide (N₂O)', value: 'n2o' },
@@ -26,7 +26,7 @@ export interface DashboardFilters {
   imports: [CommonModule, FormsModule],
   templateUrl: './filters-bar.component.html',
 })
-export class FiltersBarComponent implements OnInit{
+export class FiltersBarComponent implements OnInit {
   @Input() continents: string[] = [];
   @Input() countries: Country[] = [];
   @Input() sectors: string[] = [];
@@ -39,7 +39,7 @@ export class FiltersBarComponent implements OnInit{
     country: APP_CONFIG.DEFAULT_COUNTRY,
     sector: null,
     gas: APP_CONFIG.DEFAULT_GAS,
-    year: APP_CONFIG.END_YEAR
+    year: APP_CONFIG.END_YEAR,
   };
 
   @Output() filtersChange = new EventEmitter<DashboardFilters>();
@@ -62,5 +62,9 @@ export class FiltersBarComponent implements OnInit{
 
     this.filters = updatedFilters;
     this.filtersChange.emit(this.filters);
+  }
+
+  resetToGlobal() {
+    this.onChange({ country: null, continent: null });
   }
 }

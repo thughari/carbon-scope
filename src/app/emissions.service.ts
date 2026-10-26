@@ -6,6 +6,8 @@ import {
   CountrySummaryResponse,
   ContinentSummaryResponse,
   SourcesResponse,
+  EmissionsOverviewResponse,
+  SourcesInfoResponse,
 } from '../models/emissions.models';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -15,6 +17,26 @@ export class EmissionsService {
   private readonly baseUrl = `${environment.apiUrl}/api/emissions`;
 
   constructor(private http: HttpClient) {}
+
+  getOverview(opts: {
+    year?: number;
+    country?: string | null;
+    continent?: string | null;
+    gas?: string;
+  }): Observable<EmissionsOverviewResponse> {
+    let params = new HttpParams();
+    if (opts.year) params = params.set('year', opts.year);
+    if (opts.country) params = params.set('country', opts.country);
+    if (opts.continent) params = params.set('continent', opts.continent);
+    if (opts.gas) params = params.set('gas', opts.gas);
+    return this.http.get<EmissionsOverviewResponse>(`${this.baseUrl}/overview`, {
+      params,
+    });
+  }
+
+  getSourcesInfo(): Observable<SourcesInfoResponse> {
+    return this.http.get<SourcesInfoResponse>(`${this.baseUrl}/sources-info`);
+  }
 
   getSectorSummary(opts: {
     year?: number;

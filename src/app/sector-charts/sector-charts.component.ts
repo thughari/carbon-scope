@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as echarts from 'echarts';
+import { TrendPoint } from '../../models/emissions.models';
 
 @Component({
   selector: 'app-sector-charts',
@@ -25,6 +26,7 @@ export class SectorChartsComponent
   @Input() trendSeries: { name: string; data: number[] }[] = [];
   @Input() trendYears: number[] = [];
   @Input() selectedSector: string | null = null;
+  @Input() historicalTrend: TrendPoint[] = [];
 
   private barChart?: echarts.ECharts;
   private lineChart?: echarts.ECharts;
@@ -40,7 +42,6 @@ export class SectorChartsComponent
     });
 
     this.resizeObserver.observe(this.el.nativeElement);
-
     window.addEventListener('resize', this.onWindowResize);
   }
 
@@ -63,7 +64,6 @@ export class SectorChartsComponent
 
   private triggerResizeSequence() {
     this.performResize();
-
     [100, 300, 500, 800].forEach((delay) => {
       setTimeout(() => this.performResize(), delay);
     });
@@ -90,9 +90,9 @@ export class SectorChartsComponent
     if (!this.barChart || !this.lineChart) return;
 
     const sectors = Object.keys(this.sectorTotals);
-    const values = sectors.map((s) => this.sectorTotals[s]);
+    const values = sectors.map((s) => this.sectorTotals[s] / 1_000_000.0); // Convert to Mt for display
 
-    const axisColor = '#64748b'; // slate-500
+    const axisColor = '#64748b';
 
     const formatLabel = (name: string) => {
       const map: Record<string, string> = {
@@ -101,7 +101,7 @@ export class SectorChartsComponent
         'mineral-extraction': 'Mining',
         transportation: 'Transport',
         agriculture: 'Agriculture',
-        manufacturing: 'Manufacturing',
+        industry: 'Industry',
         power: 'Power',
         waste: 'Waste',
         buildings: 'Buildings',
@@ -115,24 +115,26 @@ export class SectorChartsComponent
     const gridConfig = {
       left: '3%',
       right: '4%',
-      bottom: '20%',
+      bottom: '15%',
       top: '15%',
       containLabel: true,
     };
 
-    const tooltipConfig = {
-      trigger: 'axis',
-      backgroundColor: 'rgba(15, 23, 42, 0.95)',
-      borderColor: '#334155',
-      textStyle: { color: '#f8fafc' },
-      confine: true,
-      className: 'chart-tooltip',
-      valueFormatter: (value: number) => this.formatNumber(value) + ' t',
-    };
-
+    // 1. Sector Bar Chart
     this.barChart.setOption({
       backgroundColor: 'transparent',
-      tooltip: { ...tooltipConfig, borderRadius: 12, borderWidth: 0 },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        borderColor: '#334155',
+        textStyle: { color: '#f8fafc' },
+        confine: true,
+        formatter: (params: any) => {
+          const p = params[0];
+          return `<div class="font-bold text-white mb-1">${formatLabel(p.name)}</div>
+                  <div class="text-sky-400 font-mono">${p.value.toFixed(2)} Mt CO₂e</div>`;
+        },
+      },
       grid: gridConfig,
       xAxis: {
         type: 'category',
@@ -140,7 +142,7 @@ export class SectorChartsComponent
         axisLabel: {
           color: axisColor,
           interval: 0,
-          rotate: 45,
+          rotate: 35,
           formatter: formatLabel,
         },
         axisLine: { show: false },
@@ -150,7 +152,7 @@ export class SectorChartsComponent
         type: 'value',
         axisLabel: {
           color: axisColor,
-          formatter: (v: number) => this.formatNumber(v),
+          formatter: (v: number) => v.toFixed(0) + ' Mt',
         },
         splitLine: { lineStyle: { color: '#1e293b', type: 'dashed' } },
       },
@@ -163,9 +165,9 @@ export class SectorChartsComponent
               { offset: 0, color: '#6366f1' },
               { offset: 1, color: '#3b82f6' },
             ]),
-            borderRadius: [6, 6, 6, 6],
+            borderRadius: [6, 6, 0, 0],
           },
-          barWidth: '60%',
+          barWidth: '45%',
           showBackground: true,
           backgroundStyle: {
             color: 'rgba(255, 255, 255, 0.03)',
@@ -175,24 +177,43 @@ export class SectorChartsComponent
       ],
     });
 
+    // 2. Trend Line Chart (Using real multi-year historical trend)
+    const trendYears = this.historicalTrend && this.historicalTrend.length > 0
+      ? this.historicalTrend.map((t) => t.year)
+      : this.trendYears;
+
+    const trendValues = this.historicalTrend && this.historicalTrend.length > 0
+      ? this.historicalTrend.map((t) => t.emissionsMt)
+      : (this.trendSeries[0]?.data.map(v => v / 1_000_000.0) || []);
+
+    const trendShares = this.historicalTrend && this.historicalTrend.length > 0
+      ? this.historicalTrend.map((t) => t.shareOfGlobal)
+      : [];
+
     this.lineChart.setOption({
       backgroundColor: 'transparent',
       tooltip: {
-        ...tooltipConfig,
-        borderRadius: 12,
-        borderWidth: 0,
         trigger: 'axis',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+        borderColor: '#334155',
+        textStyle: { color: '#f8fafc' },
+        formatter: (params: any) => {
+          const idx = params[0]?.dataIndex;
+          const yr = trendYears[idx];
+          const val = trendValues[idx];
+          const share = trendShares[idx];
+          let html = `<div class="font-bold text-white mb-1">Year ${yr} Verified Benchmark</div>`;
+          html += `<div class="text-sky-400 font-mono">Emissions: ${val ? val.toFixed(1) : '--'} Mt CO₂e</div>`;
+          if (share) {
+            html += `<div class="text-emerald-400 text-xs">Share of World: ${share.toFixed(2)}%</div>`;
+          }
+          return html;
+        },
       },
-      legend: {
-        textStyle: { color: '#94a3b8' },
-        top: 0,
-        icon: 'circle',
-        type: 'scroll',
-      },
-      grid: { ...gridConfig, top: '20%' },
+      grid: gridConfig,
       xAxis: {
         type: 'category',
-        data: this.trendYears,
+        data: trendYears,
         axisLabel: { color: axisColor },
         axisLine: { lineStyle: { color: '#334155' } },
         axisTick: { show: false },
@@ -201,32 +222,30 @@ export class SectorChartsComponent
         type: 'value',
         axisLabel: {
           color: axisColor,
-          formatter: (v: number) => this.formatNumber(v),
+          formatter: (v: number) => v.toFixed(0) + ' Mt',
         },
         splitLine: { lineStyle: { color: '#1e293b', type: 'dashed' } },
       },
-      series: this.trendSeries.map((s, index) => ({
-        name: formatLabel(s.name),
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 3 },
-        itemStyle: {
-          color: ['#10b981', '#f59e0b', '#f43f5e', '#3b82f6', '#8b5cf6'][
-            index % 5
-          ],
+      series: [
+        {
+          name: 'Annual Carbon Emissions',
+          type: 'line',
+          smooth: true,
+          showSymbol: true,
+          symbolSize: 8,
+          lineStyle: { width: 3, color: '#38bdf8' },
+          itemStyle: { color: '#38bdf8' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(56, 189, 248, 0.35)' },
+              { offset: 1, color: 'rgba(56, 189, 248, 0.0)' },
+            ]),
+          },
+          data: trendValues,
         },
-        data: s.data,
-      })),
+      ],
     });
 
     this.performResize();
-  }
-
-  private formatNumber(value: number): string {
-    if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
-    if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
-    if (value >= 1e3) return (value / 1e3).toFixed(0) + 'K';
-    return value.toString();
   }
 }

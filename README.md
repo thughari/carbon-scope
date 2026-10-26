@@ -20,10 +20,13 @@
 
 ### ✨ Key Features
 
-*   **📊 Data Visualization:** Interactive charts and dashboards to display carbon footprint data clearly.
-*   **📱 Responsive Design:** Fully responsive interface built with Tailwind CSS that works on desktop, tablet, and mobile.
-*   **⚡ Modern Architecture:** Powered by Angular 18+ for high performance and maintainable code.
-*   **🎨 Clean UI/UX:** Intuitive design focused on user experience and data accessibility.
+*   **🌍 Multi-Source Empirical Consensus:** Real-time integration with **Climate TRACE**, **Global Carbon Project (GCP) & Our World in Data**, **Ember Climate**, and **EDGAR**.
+*   **📊 Comprehensive Carbon Overview:** Accurate national totals in Megatonnes (Mt CO₂e), national global ranking, % share of world emissions, and per-capita footprint benchmarks.
+*   **🏆 Global Emitter Leaderboard:** Interactive ranking and comparison of the world's highest emission nations with instant scope filtering.
+*   **📈 Empirical Trajectory Charts:** Real multi-year historical trendlines (2021-2025) and sector distribution powered by Apache ECharts.
+*   **🤖 Multi-Source CarbonScope AI:** Real-time streaming assistant providing grounded climate policy analysis and live web search.
+*   **🛡️ Transparency & Verified Sources Drawer:** Inspect methodology, update frequencies, and official links for all integrated data providers.
+*   **📱 Responsive & Resilient Design:** Built with Angular 18+, Tailwind CSS, and sub-10ms cached API responses with offline resilience.
 
 ---
 

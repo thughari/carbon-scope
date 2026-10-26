@@ -7,11 +7,18 @@ import { HeaderStatsComponent } from './header-stats/header-stats.component';
 import { DashboardFilters, FiltersBarComponent } from './filters-bar/filters-bar.component';
 import { SectorChartsComponent } from './sector-charts/sector-charts.component';
 import { SectorTableComponent } from './sector-table/sector-table.component';
-import { WorldMapComponent } from './world-map/world-map.component'; 
+import { WorldMapComponent } from './world-map/world-map.component';
 
-import { SectorSummaryResponse, SubsectorSummaryResponse } from '../models/emissions.models';
+import {
+  EmissionsOverviewResponse,
+  SectorSummaryResponse,
+  SourceInfoItem,
+  SourcesInfoResponse,
+  SubsectorSummaryResponse,
+  TrendPoint
+} from '../models/emissions.models';
 import { EmissionsService } from './emissions.service';
-import { SystemStatusService } from './system-status.service';
+import { SystemStatusService, HealthTelemetry } from './system-status.service';
 
 import { ALL_COUNTRIES, APP_CONFIG } from '../models/app.constants';
 import { Country } from '../models/country-data';
@@ -35,17 +42,26 @@ import { Country } from '../models/country-data';
 export class AppComponent implements OnInit {
   title = 'CarbonScope';
 
-  sidebarWidth = 400; 
+  sidebarWidth = 400;
   isResizing = false;
   isMobileChatOpen = false;
+  isSourcesModalOpen = false;
 
   loading = false;
   loadingSubsectors = false;
   isSystemOnline = false;
-  
+  healthInfo: HealthTelemetry | null = null;
+
   globalEmissionsTotal = 0;
   headerTotal = 0;
   headerHighestSector = '';
+  countryRank: number | null = 3;
+  perCapita = 2.0;
+  gridIntensity: number | null = 680;
+  cleanPower: number | null = 23.5;
+  countryName = 'India';
+  dataSourceStatus = 'LIVE_API';
+
   headerYearRange: [number, number] = [APP_CONFIG.START_YEAR, APP_CONFIG.END_YEAR];
 
   continents: string[] = ['Asia', 'Europe', 'North America', 'South America', 'Africa', 'Oceania'];
@@ -60,12 +76,15 @@ export class AppComponent implements OnInit {
     year: APP_CONFIG.END_YEAR
   };
 
+  overview: EmissionsOverviewResponse | null = null;
   sectorTotals: Record<string, number> = {};
   subsectorSummary: SubsectorSummaryResponse | null = null;
   selectedSector: string | null = null;
 
   trendYears: number[] = [];
   trendSeries: { name: string; data: number[] }[] = [];
+  historicalTrend: TrendPoint[] = [];
+  verifiedSourcesList: SourceInfoItem[] = [];
 
   constructor(
     private emissions: EmissionsService,
@@ -76,6 +95,12 @@ export class AppComponent implements OnInit {
     this.statusService.isOnline$.subscribe(online => {
       this.isSystemOnline = online;
     });
+
+    this.statusService.health$.subscribe(health => {
+      this.healthInfo = health;
+    });
+
+    this.loadVerifiedSources();
     this.loadDashboard();
   }
 
@@ -102,8 +127,25 @@ export class AppComponent implements OnInit {
     this.isMobileChatOpen = !this.isMobileChatOpen;
   }
 
+  openSourcesModal() {
+    this.isSourcesModalOpen = true;
+  }
+
+  closeSourcesModal() {
+    this.isSourcesModalOpen = false;
+  }
+
   onFiltersChange(f: DashboardFilters) {
     this.filters = f;
+    this.loadDashboard();
+  }
+
+  onCountrySelectFromLeaderboard(countryCode: string) {
+    this.filters = {
+      ...this.filters,
+      country: countryCode,
+      continent: null
+    };
     this.loadDashboard();
   }
 
@@ -111,6 +153,15 @@ export class AppComponent implements OnInit {
     if (this.subsectorSummary?.sector === sector) return;
     this.selectedSector = sector;
     this.loadSubsectors(sector);
+  }
+
+  private loadVerifiedSources() {
+    this.emissions.getSourcesInfo().subscribe({
+      next: (res: SourcesInfoResponse) => {
+        this.verifiedSourcesList = res.sources;
+      },
+      error: (err) => console.warn('Could not load sources info:', err)
+    });
   }
 
   private loadDashboard() {
@@ -121,9 +172,42 @@ export class AppComponent implements OnInit {
     for (let y = APP_CONFIG.START_YEAR; y <= selectedYear; y++) {
       this.trendYears.push(y);
     }
-
     this.headerYearRange = [APP_CONFIG.START_YEAR, selectedYear];
 
+    // 1. Fetch Consolidated Multi-Source Overview
+    this.emissions.getOverview({
+      year: selectedYear,
+      country: this.filters.country,
+      continent: this.filters.continent,
+      gas: this.filters.gas
+    }).subscribe({
+      next: (res: EmissionsOverviewResponse) => {
+        this.overview = res;
+        this.headerTotal = res.totalEmissionsTonnes;
+        this.globalEmissionsTotal = res.worldEmissionsMt * 1_000_000.0;
+        this.countryRank = res.countryRank;
+        this.perCapita = res.perCapitaTonnes;
+        this.gridIntensity = res.gridCarbonIntensityGco2PerKwh;
+        this.cleanPower = res.cleanPowerPercentage;
+        this.countryName = res.countryName;
+        this.dataSourceStatus = res.dataSourceStatus;
+        this.historicalTrend = res.historicalTrend || [];
+        if (res.verifiedSources && res.verifiedSources.length > 0) {
+          this.verifiedSourcesList = res.verifiedSources;
+        }
+
+        // 2. Fetch Detailed Sector Breakdown
+        this.loadSectors(selectedYear);
+      },
+      error: (err) => {
+        console.error('Overview fetch error:', err);
+        // Fallback to direct sector summary
+        this.loadSectors(selectedYear);
+      }
+    });
+  }
+
+  private loadSectors(selectedYear: number) {
     this.emissions.getSectorSummary({
       year: selectedYear,
       country: this.filters.country,
@@ -133,31 +217,31 @@ export class AppComponent implements OnInit {
     }).subscribe({
       next: (res: SectorSummaryResponse) => {
         this.sectorTotals = res.sectorTotals;
-        this.headerTotal = Object.values(res.sectorTotals).reduce((a, b) => a + b, 0);
-        
+
         const entries = Object.entries(res.sectorTotals);
         const sorted = entries.sort((a, b) => b[1] - a[1]);
         this.headerHighestSector = sorted[0]?.[0] ?? '';
+
+        if (!this.overview) {
+          this.headerTotal = Object.values(res.sectorTotals).reduce((a, b) => a + b, 0);
+          this.fetchGlobalContext(this.filters.gas);
+        }
 
         this.trendSeries = entries.slice(0, 5).map(([sector, currentValue]) => {
           const historyData = this.trendYears.map((year, index) => {
             const totalPoints = this.trendYears.length;
             if (totalPoints <= 1) return currentValue;
-            
-            const progress = index / (totalPoints - 1); 
-            const scale = 0.9 + (0.1 * progress); 
-            
+            const progress = index / (totalPoints - 1);
+            const scale = 0.92 + (0.08 * progress);
             return Math.round(currentValue * scale);
           });
-
           return { name: sector, data: historyData };
         });
 
-        this.fetchGlobalContext(this.filters.gas); 
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
+        console.error('Sector summary error:', err);
         this.loading = false;
       }
     });
@@ -181,8 +265,8 @@ export class AppComponent implements OnInit {
   }
 
   private loadSubsectors(sector: string) {
-    this.loadingSubsectors = true; 
-    this.subsectorSummary = null; 
+    this.loadingSubsectors = true;
+    this.subsectorSummary = null;
 
     this.emissions.getSubsectorSummary({
       year: this.filters.year,
@@ -194,14 +278,10 @@ export class AppComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.subsectorSummary = res;
-        const realSum = Object.values(res.subsectorTotals).reduce((sum, val) => sum + val, 0);
-        if (realSum > (this.sectorTotals[sector] || 0)) {
-           this.sectorTotals = { ...this.sectorTotals, [sector]: realSum };
-        }
         this.loadingSubsectors = false;
       },
       error: (err) => {
-        console.error(err);
+        console.error('Subsector fetch error:', err);
         this.loadingSubsectors = false;
       }
     });

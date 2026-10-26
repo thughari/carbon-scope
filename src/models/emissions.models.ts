@@ -1,3 +1,52 @@
+export interface TrendPoint {
+  year: number;
+  emissionsMt: number;
+  worldEmissionsMt: number;
+  shareOfGlobal: number;
+}
+
+export interface SourceInfoItem {
+  id: string;
+  name: string;
+  organization: string;
+  url: string;
+  type: string;
+  coverage: string;
+  methodology: string;
+  updateFrequency: string;
+  reliabilityRating: string;
+  roleInCarbonScope: string;
+}
+
+export interface SourcesInfoResponse {
+  sources: SourceInfoItem[];
+  lastSynchronized: string;
+  globalConsensusFramework: string;
+}
+
+export interface EmissionsOverviewResponse {
+  country: string | null;
+  countryName: string;
+  continent: string | null;
+  year: number;
+  gas: string;
+  totalEmissionsTonnes: number;
+  totalEmissionsMt: number;
+  worldEmissionsMt: number;
+  countryRank: number | null;
+  percentageOfGlobal: number;
+  perCapitaTonnes: number;
+  gridCarbonIntensityGco2PerKwh: number | null;
+  cleanPowerPercentage: number | null;
+  gasBreakdownMt: Record<string, number>;
+  sectorTotalsMt: Record<string, number>;
+  historicalTrend: TrendPoint[];
+  verifiedSources: SourceInfoItem[];
+  dataReliability: string;
+  dataSourceStatus: string;
+  responseTimeMs: number;
+}
+
 export interface SectorSummaryResponse {
   sectorTotals: Record<string, number>;
   filterCountry?: string | null;

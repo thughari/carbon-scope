@@ -26,13 +26,19 @@ export class ChatPanelComponent {
   @Input() currentYear: number = APP_CONFIG.END_YEAR;
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
-
   @ViewChild('chatInput') private chatInput!: ElementRef;
+
+  suggestedQuestions: string[] = [
+    'What are the largest emission drivers?',
+    'How does per-capita footprint compare to global average?',
+    'What is the power grid carbon intensity?',
+    'Which sectors require urgent decarbonization?',
+  ];
 
   private dataMessages: ChatMessage[] = [
     {
       sender: 'bot',
-      text: 'Hello! I analyze **global emissions data**. \n\nAsk me specific questions about the dashboard data.',
+      text: 'Hello! I am **CarbonScope AI**, powered by verified empirical datasets from **Climate TRACE**, **Global Carbon Project (GCP)**, **Ember Climate**, and **EDGAR**.\n\nAsk me specific questions about national totals, sector breakdowns, per-capita footprints, or clean energy progress.',
       time: new Date(),
     },
   ];
@@ -40,7 +46,7 @@ export class ChatPanelComponent {
   private webMessages: ChatMessage[] = [
     {
       sender: 'bot',
-      text: 'Hello! I can browse the **live web** for latest climate news and policies. \n\nWhat would you like to search?',
+      text: 'Hello! I can browse the **live web** for latest international climate policies, carbon taxes, and renewable energy announcements.\n\nWhat would you like to search?',
       time: new Date(),
     },
   ];
@@ -68,6 +74,11 @@ export class ChatPanelComponent {
     this.mode = m;
     this.scrollToBottom();
     setTimeout(() => this.focusInput(), 100);
+  }
+
+  askSuggested(q: string) {
+    this.input = q;
+    this.send();
   }
 
   scrollToBottom(): void {
@@ -138,9 +149,9 @@ export class ChatPanelComponent {
           this.focusInput();
         },
         (err) => {
-          console.error(err);
+          console.error('Chat stream error:', err);
           botMessage.text +=
-            '\n\n**System Offline**: _I cannot process requests right now._';
+            '\n\n*Unable to connect to live AI streaming. Please verify backend connection.*';
           this.isTyping = false;
           this.isStreaming = false;
           this.scrollToBottom();

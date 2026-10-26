@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { APP_CONFIG } from '../../models/app.constants';
 
@@ -15,6 +15,14 @@ export class HeaderStatsComponent implements OnChanges {
   @Input() highestSector = '';
   @Input() yearRange: [number, number] = [APP_CONFIG.START_YEAR, APP_CONFIG.END_YEAR];
   @Input() selectedGas = APP_CONFIG.DEFAULT_GAS;
+  @Input() countryRank: number | null = null;
+  @Input() perCapita = 0;
+  @Input() gridIntensity: number | null = null;
+  @Input() cleanPower: number | null = null;
+  @Input() countryName = '';
+  @Input() dataSourceStatus = 'LIVE_API';
+
+  @Output() viewSourcesClick = new EventEmitter<void>();
 
   percentage = 0;
 
@@ -24,15 +32,17 @@ export class HeaderStatsComponent implements OnChanges {
 
   get formattedHighestSector(): string {
     if (!this.highestSector) return '--';
-    
+
     const map: Record<string, string> = {
       'fossil-fuel-operations': 'Fossil Fuels',
       'forestry-and-land-use': 'Forestry & Land',
       'mineral-extraction': 'Mineral Extraction',
       'transportation': 'Transportation',
       'agriculture': 'Agriculture',
-      'power': 'Power Sector',
-      'waste': 'Waste Management'
+      'power': 'Power Generation',
+      'waste': 'Waste Management',
+      'industry': 'Industrial Processes',
+      'buildings': 'Buildings & Heating'
     };
 
     if (map[this.highestSector]) {
@@ -61,8 +71,8 @@ export class HeaderStatsComponent implements OnChanges {
   }
 
   private gasMap: Record<string, string> = {
-    co2e_100yr: 'Aggregated CO₂e (100yr)',
-    co2e_20yr: 'Aggregated CO₂e (20yr)',
+    co2e_100yr: 'Aggregated CO₂e (100yr GWP)',
+    co2e_20yr: 'Aggregated CO₂e (20yr GWP)',
     co2: 'Carbon Dioxide (CO₂)',
     ch4: 'Methane (CH₄)',
     n2o: 'Nitrous Oxide (N₂O)',
