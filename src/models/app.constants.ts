@@ -1,8 +1,10 @@
 import { Country } from "./country-data";
 
+const currentYear = typeof window !== 'undefined' ? new Date().getFullYear() : 2026;
+
 export const APP_CONFIG = {
-  START_YEAR: 2021,
-  END_YEAR: 2025,
+  START_YEAR: 2015,
+  END_YEAR: currentYear >= 2026 ? currentYear : 2026,
   DEFAULT_COUNTRY: 'IND',
   DEFAULT_GAS: 'co2e_100yr'
 };

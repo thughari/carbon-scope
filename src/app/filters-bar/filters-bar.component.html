@@ -95,7 +95,9 @@
         <select
           class="w-full bg-slate-950/80 border border-slate-700/80 text-slate-100 text-xs rounded-xl px-3 py-2.5 pr-7 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 appearance-none cursor-pointer hover:border-slate-500 transition-all font-medium font-mono"
           [ngModel]="filters.year" (ngModelChange)="onChange({ year: $event })">
-          <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
+          <option *ngFor="let y of years" [ngValue]="y">
+            {{ y }}{{ y === years[0] ? ' (Latest)' : (y === years[years.length - 1] ? ' (Baseline)' : '') }}
+          </option>
         </select>
         <div class="absolute right-2.5 top-3 pointer-events-none text-slate-400">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

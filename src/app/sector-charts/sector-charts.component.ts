@@ -28,6 +28,16 @@ export class SectorChartsComponent
   @Input() selectedSector: string | null = null;
   @Input() historicalTrend: TrendPoint[] = [];
 
+  get trendRangeText(): string {
+    if (this.historicalTrend && this.historicalTrend.length > 0) {
+      return `${this.historicalTrend[0].year} - ${this.historicalTrend[this.historicalTrend.length - 1].year}`;
+    }
+    if (this.trendYears && this.trendYears.length > 0) {
+      return `${this.trendYears[0]} - ${this.trendYears[this.trendYears.length - 1]}`;
+    }
+    return '2015 - Present';
+  }
+
   private barChart?: echarts.ECharts;
   private lineChart?: echarts.ECharts;
   private resizeObserver: ResizeObserver | null = null;
