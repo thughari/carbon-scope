@@ -13,33 +13,34 @@
   <div class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
 
     <!-- Top Navigation Header -->
-    <header class="px-6 md:px-10 py-4 flex items-center justify-between shrink-0 border-b border-white/5 bg-slate-950/40 backdrop-blur-md">
+    <header class="px-4 sm:px-6 md:px-10 py-3.5 flex items-center justify-between shrink-0 border-b border-white/5 bg-slate-950/60 backdrop-blur-md">
       <div>
-        <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-3">
-          <div class="h-9 w-9 flex items-center justify-center p-1 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 shadow-md shadow-sky-500/20">
+        <h1 class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2.5">
+          <div class="h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center p-1 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 shadow-md shadow-sky-500/20 shrink-0">
             <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Carbon_footprint_icon.png"
               alt="CarbonScope" class="h-full w-full object-contain brightness-0 invert opacity-95">
           </div>
           <span class="text-white">Carbon<span class="text-sky-400">Scope</span></span>
         </h1>
-        <p class="text-[11px] text-slate-400 font-medium tracking-wide hidden sm:block mt-0.5">
-          Multi-Source Greenhouse Gas & Decarbonization Intelligence
+        <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium tracking-wide hidden sm:block mt-0.5">
+          Multi-Source Verified Greenhouse Gas & Climate Intelligence
         </p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <!-- Verified Sources Button -->
         <button (click)="openSourcesModal()"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold transition-all shadow-sm">
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold transition-all shadow-sm">
           <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
-          <span class="hidden sm:inline">Verified Sources</span> ({{ verifiedSourcesList.length || 4 }})
+          <span class="hidden sm:inline">Verified Sources</span>
+          <span class="text-[11px] font-mono text-indigo-400">({{ verifiedSourcesList.length || 5 }})</span>
         </button>
 
         <!-- System Telemetry Status -->
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-colors duration-500 text-xs font-semibold"
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border transition-colors duration-500 text-xs font-semibold"
           [ngClass]="isSystemOnline 
             ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
             : 'bg-rose-500/10 border-rose-500/20 text-rose-400'">
@@ -58,34 +59,34 @@
     </header>
 
     <!-- Scrollable Main Content -->
-    <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-10 py-5 space-y-6 scroll-smooth flex flex-col">
+    <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-5 space-y-5 scroll-smooth flex flex-col">
 
-      <!-- Header Stats & Filters Grid -->
-      <div class="flex flex-col xl:flex-row gap-5 animate-fade-in shrink-0">
-        <div class="flex-1">
-          <app-header-stats
-            [totalEmissions]="headerTotal / 1_000_000.0"
-            [globalTotal]="globalEmissionsTotal / 1_000_000.0"
-            [highestSector]="headerHighestSector"
-            [yearRange]="headerYearRange"
-            [selectedGas]="filters.gas"
-            [countryRank]="countryRank"
-            [perCapita]="perCapita"
-            [gridIntensity]="gridIntensity"
-            [cleanPower]="cleanPower"
-            [countryName]="countryName"
-            [dataSourceStatus]="dataSourceStatus"
-            (viewSourcesClick)="openSourcesModal()">
-          </app-header-stats>
-        </div>
-        <div class="xl:w-[420px]">
-          <app-filters-bar [continents]="continents" [countries]="countries" [sectors]="sectors" [filters]="filters"
-            (filtersChange)="onFiltersChange($event)">
-          </app-filters-bar>
-        </div>
+      <!-- 1. Scope & Filters Bar (Full Width Top Strip) -->
+      <div class="animate-fade-in shrink-0">
+        <app-filters-bar [continents]="continents" [countries]="countries" [sectors]="sectors" [filters]="filters"
+          (filtersChange)="onFiltersChange($event)">
+        </app-filters-bar>
       </div>
 
-      <!-- Charts Section -->
+      <!-- 2. Header Stats Cards (Full Width 4-Card Responsive Grid) -->
+      <div class="animate-fade-in shrink-0">
+        <app-header-stats
+          [totalEmissions]="headerTotal / 1_000_000.0"
+          [globalTotal]="globalEmissionsTotal / 1_000_000.0"
+          [highestSector]="headerHighestSector"
+          [yearRange]="headerYearRange"
+          [selectedGas]="filters.gas"
+          [countryRank]="countryRank"
+          [perCapita]="perCapita"
+          [gridIntensity]="gridIntensity"
+          [cleanPower]="cleanPower"
+          [countryName]="countryName"
+          [dataSourceStatus]="dataSourceStatus"
+          (viewSourcesClick)="openSourcesModal()">
+        </app-header-stats>
+      </div>
+
+      <!-- 3. Charts Section (Side-by-side or stacked on mobile) -->
       <div class="animate-fade-in shrink-0" style="animation-delay: 100ms">
         <app-sector-charts
           [sectorTotals]="sectorTotals"
@@ -96,7 +97,7 @@
         </app-sector-charts>
       </div>
 
-      <!-- Interactive Global Emitter Leaderboard -->
+      <!-- 4. Interactive Global Emitter Leaderboard -->
       <div class="animate-fade-in shrink-0" style="animation-delay: 150ms">
         <app-world-map
           [selectedCountry]="filters.country"
@@ -104,7 +105,7 @@
         </app-world-map>
       </div>
 
-      <!-- Detailed Sector & Subsector Table -->
+      <!-- 5. Detailed Sector & Granular Subsector Table -->
       <div class="animate-fade-in shrink-0" style="animation-delay: 200ms">
         <app-sector-table
           [sectorTotals]="sectorTotals"
@@ -157,7 +158,7 @@
 
   <!-- Mobile Chat Modal -->
   <div *ngIf="isMobileChatOpen"
-    class="xl:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md animate-fade-in flex items-center justify-center p-4"
+    class="xl:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md animate-fade-in flex items-center justify-center p-3 sm:p-4"
     (click)="toggleMobileChat()">
     <div
       class="w-full max-w-md h-[85vh] bg-[#0B1121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative animate-slide-up"
@@ -178,31 +179,31 @@
     </div>
   </div>
 
-  <!-- Verified Sources Modal / Slide-over -->
+  <!-- Verified Sources Modal (Refined, non-clumsy mobile and desktop layout) -->
   <div *ngIf="isSourcesModalOpen"
-    class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md animate-fade-in flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md animate-fade-in flex items-center justify-center p-3 sm:p-5"
     (click)="closeSourcesModal()">
     <div
-      class="w-full max-w-3xl max-h-[90vh] bg-[#0B1121] border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative animate-slide-up"
+      class="w-full max-w-3xl max-h-[88vh] bg-[#0B1121] border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative animate-slide-up"
       (click)="$event.stopPropagation()">
 
       <!-- Modal Header -->
-      <div class="p-6 border-b border-white/10 flex items-center justify-between bg-slate-900/50">
+      <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/60 sticky top-0 z-10 backdrop-blur-md shrink-0">
         <div class="flex items-center gap-3">
-          <div class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-white">Verified Authoritative Climate Data Sources</h2>
-            <p class="text-xs text-slate-400">Multi-source consensus powering CarbonScope emissions intelligence</p>
+            <h2 class="text-base sm:text-lg font-bold text-white leading-tight">Verified Climate Data Sources</h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">Consensus datasets powering CarbonScope analytics</p>
           </div>
         </div>
 
         <button (click)="closeSourcesModal()"
-          class="h-8 w-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-slate-300 hover:bg-rose-500 hover:text-white transition-all">
+          class="h-8 w-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-slate-300 hover:bg-rose-500 hover:text-white transition-all shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
@@ -210,44 +211,45 @@
       </div>
 
       <!-- Sources List -->
-      <div class="p-6 overflow-y-auto space-y-4">
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1">
         <div *ngFor="let s of verifiedSourcesList"
-          class="p-4 rounded-2xl bg-slate-900/60 border border-white/10 hover:border-indigo-500/30 transition-all flex flex-col gap-2.5">
-          <div class="flex items-start justify-between gap-3">
+          class="p-4 rounded-2xl bg-slate-900/70 border border-white/10 hover:border-indigo-500/30 transition-all flex flex-col gap-2.5 shadow-sm">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-2.5">
             <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-white text-sm">{{ s.name }}</h4>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-bold">
-                  {{ s.reliabilityRating }}
-                </span>
-              </div>
-              <p class="text-xs text-slate-400 mt-0.5">{{ s.organization }}</p>
+              <h4 class="font-bold text-white text-sm sm:text-base leading-tight">{{ s.name }}</h4>
+              <p class="text-[11px] text-slate-400 mt-0.5">{{ s.organization }}</p>
             </div>
 
-            <a [href]="s.url" target="_blank" rel="noopener noreferrer"
-              class="px-3 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 hover:bg-sky-500/20 text-xs font-semibold flex items-center gap-1 shrink-0 transition-colors">
-              Visit Source
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-              </svg>
-            </a>
+            <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-bold whitespace-nowrap">
+                {{ s.reliabilityRating }}
+              </span>
+              <a [href]="s.url" target="_blank" rel="noopener noreferrer"
+                class="px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-500/25 text-sky-400 hover:bg-sky-500/25 text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap">
+                Visit Source
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+              </a>
+            </div>
           </div>
 
           <p class="text-xs text-slate-300 leading-relaxed">{{ s.methodology }}</p>
 
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400 pt-2 border-t border-white/5">
-            <div><span class="text-slate-500">Coverage:</span> {{ s.coverage }}</div>
-            <div><span class="text-slate-500">Frequency:</span> {{ s.updateFrequency }}</div>
-            <div class="text-indigo-400 font-medium"><span class="text-slate-500">Role:</span> {{ s.roleInCarbonScope }}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px] text-slate-400 pt-1.5 border-t border-white/5">
+            <div><span class="text-slate-500 font-medium">Coverage:</span> {{ s.coverage }}</div>
+            <div><span class="text-slate-500 font-medium">Cadence:</span> {{ s.updateFrequency }}</div>
+            <div class="text-indigo-400"><span class="text-slate-500 font-medium">Role:</span> {{ s.roleInCarbonScope }}</div>
           </div>
         </div>
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-4 border-t border-white/10 bg-slate-900/60 flex items-center justify-between text-xs text-slate-400">
-        <span>Framework: IPCC AR6 GWP100 / UNFCCC Guidelines</span>
+      <div class="p-3.5 sm:p-4 border-t border-white/10 bg-slate-900/80 flex items-center justify-between text-xs text-slate-400 sticky bottom-0 z-10 backdrop-blur-md shrink-0">
+        <span class="text-[11px] text-slate-400 truncate pr-2">Framework: IPCC AR6 GWP100 • UNFCCC</span>
         <button (click)="closeSourcesModal()"
-          class="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-all">
+          class="px-5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md">
           Done
         </button>
       </div>
