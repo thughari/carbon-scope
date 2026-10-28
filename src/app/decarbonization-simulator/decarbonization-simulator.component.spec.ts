@@ -404,4 +404,35 @@ describe('DecarbonizationSimulatorComponent', () => {
     expect(compiled.textContent).toContain('Provisional Emission Factor Warning');
     expect(compiled.textContent).toContain('Dedicated oil-fired power lifecycle factor is provisional');
   });
+
+  it('should calculate car equivalencies and display plain-language impact sentence', () => {
+    emissionsServiceSpy.calculateDecarbonizationScenario.and.returnValue(of(mockResponse));
+    component.runSimulation();
+    fixture.detectChanges();
+
+    // 38.6 Mt / 4.6 tonnes per car/yr = ~8,391,304 cars
+    expect(component.passengerVehiclesEquivalent).toBeGreaterThan(8_000_000);
+    expect(component.displacedFuelLabel).toBe('Coal');
+    expect(component.replacementCleanLabel).toBe('Solar PV (Utility-scale)');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('gasoline cars');
+    expect(compiled.textContent).toContain('Energy Transition Simulator');
+    expect(compiled.textContent).not.toContain('Phase 3');
+    expect(compiled.textContent).not.toContain('Phase 4');
+  });
+
+  it('should toggle TWh contextual explainer and advanced options disclosure', () => {
+    expect(component.showTwhExplainer).toBeFalse();
+    component.showTwhExplainer = true;
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('1 Terawatt-hour (TWh) = 1,000 Gigawatt-hours');
+
+    expect(component.showAdvancedOptions).toBeFalse();
+    component.showAdvancedOptions = true;
+    fixture.detectChanges();
+    expect(compiled.textContent).toContain('Accounting Boundary Standard');
+  });
 });

@@ -54,10 +54,35 @@ export class DecarbonizationSimulatorComponent implements OnInit {
 
   showAdvancedFactors = false;
 
+  // Progressive disclosure accordions & helpers
+  showAdvancedOptions = false;
+  showTwhExplainer = false;
+  showHowCalculated = false;
+  showSensitivityDrawer = false;
+  showDataSourcesDrawer = false;
+  showLimitationsDrawer = false;
+
   loadingCountries = false;
   calculating = false;
   errorMessage: string | null = null;
   result: DecarbonizationScenarioResponse | null = null;
+
+  get passengerVehiclesEquivalent(): number {
+    if (!this.result?.impact) return 0;
+    const mt = this.result.impact.netAvoidedEmissionsMt ?? this.result.impact.avoidedDirectEmissionsMt ?? 0;
+    if (mt <= 0) return 0;
+    return Math.round((mt * 1_000_000) / 4.6);
+  }
+
+  get displacedFuelLabel(): string {
+    const f = this.fuelOptions.find(item => item.id === this.displacedFuel);
+    return f ? f.label : this.displacedFuel;
+  }
+
+  get replacementCleanLabel(): string {
+    const c = this.cleanOptions.find(item => item.id === this.replacementCleanSource);
+    return c ? c.label : this.replacementCleanSource;
+  }
 
   readonly fuelOptions = [
     {

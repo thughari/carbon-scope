@@ -55,8 +55,21 @@ export class AppComponent implements OnInit {
   isMobileChatOpen = false;
   isSourcesModalOpen = false;
 
+  welcomeDismissed = false;
+
   setActiveTab(tab: 'dashboard' | 'simulator' | 'policy') {
     this.activeTab = tab;
+  }
+
+  toggleWelcome() {
+    this.welcomeDismissed = !this.welcomeDismissed;
+  }
+
+  scrollToEmissions() {
+    const el = document.getElementById('emissions-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   loading = false;

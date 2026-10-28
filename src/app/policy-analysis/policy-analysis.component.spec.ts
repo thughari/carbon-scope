@@ -302,4 +302,16 @@ describe('PolicyAnalysisComponent', () => {
     component.goToSimulator();
     expect(component.navigateToSimulator.emit).toHaveBeenCalled();
   });
+
+  it('should render plain-language capacity vs generation mismatch explanation', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.textContent).toContain('This national target measures how much generating capacity is installed');
+    expect(compiled.textContent).toContain('Your scenario measures how much electricity is produced');
+    expect(compiled.textContent).toContain('We cannot calculate a valid progress percentage from these two different measurements');
+    expect(compiled.textContent).toContain('Climate Targets & Technology Evidence');
+    expect(compiled.textContent).not.toContain('Phase 4');
+    expect(compiled.textContent).not.toContain('Phase 3');
+  });
 });

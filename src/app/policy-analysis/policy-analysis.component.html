@@ -5,17 +5,17 @@
     <div class="space-y-1">
       <div class="flex items-center gap-2">
         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-sky-500/10 text-sky-400 border border-sky-500/20">
-          Phase 4 Verified Intelligence
+          Official UNFCCC & Peer-Reviewed Science
         </span>
         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          UNFCCC & IPCC AR5 Sourced
+          IPCC AR5 & UN Sourced
         </span>
       </div>
       <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
-        <span>Evidence-Backed Interventions & NDC Tracker</span>
+        <span>Climate Targets & Technology Evidence</span>
       </h2>
       <p class="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-        Compare power-sector decarbonization interventions using traceable peer-reviewed lifecycle literature (IPCC AR5 WGIII Table A.III.2) and evaluate simulated scenarios against authoritative country climate commitments submitted to the UNFCCC.
+        Evaluate clean-energy scenarios against official country climate pledges submitted under the Paris Agreement (NDCs) and explore literature-harmonized lifecycle emissions data from IPCC AR5 WGIII Table A.III.2.
       </p>
     </div>
 
@@ -69,29 +69,29 @@
       (click)="activeSubTab = 'all'"
       [ngClass]="activeSubTab === 'all' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
       class="px-3 py-1.5 rounded-lg text-xs transition-all">
-      All Policy Intelligence
-    </button>
-    <button
-      type="button"
-      (click)="activeSubTab = 'evidence'"
-      [ngClass]="activeSubTab === 'evidence' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
-      class="px-3 py-1.5 rounded-lg text-xs transition-all">
-      Interventions Evidence Matrix (8)
-    </button>
-    <button
-      type="button"
-      (click)="activeSubTab = 'ndc'"
-      [ngClass]="activeSubTab === 'ndc' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
-      class="px-3 py-1.5 rounded-lg text-xs transition-all">
-      UNFCCC NDC Commitment Tracker
+      All Climate Information
     </button>
     <button
       type="button"
       (click)="activeSubTab = 'comparison'"
       [ngClass]="activeSubTab === 'comparison' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
       class="px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5">
-      <span>Scenario-to-NDC Alignment</span>
+      <span>Scenario vs. Climate Targets</span>
       <span *ngIf="scenario" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    </button>
+    <button
+      type="button"
+      (click)="activeSubTab = 'ndc'"
+      [ngClass]="activeSubTab === 'ndc' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
+      class="px-3 py-1.5 rounded-lg text-xs transition-all">
+      National Climate Commitments (NDCs)
+    </button>
+    <button
+      type="button"
+      (click)="activeSubTab = 'evidence'"
+      [ngClass]="activeSubTab === 'evidence' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
+      class="px-3 py-1.5 rounded-lg text-xs transition-all">
+      Clean Technology Evidence (IPCC AR5)
     </button>
   </div>
 
@@ -563,21 +563,30 @@
 
         <!-- Non-Comparable Metric Indicator for Installed Capacity -->
         <div *ngIf="scenarioComparison.comparabilityStatus === 'NON_COMPARABLE_CAPACITY_VS_GENERATION'"
-          class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
-          <div class="flex items-center justify-between text-xs font-bold text-amber-300">
-            <span class="flex items-center gap-1.5">
-              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-amber-300">
+            <span class="flex items-center gap-2">
+              <svg class="w-5 h-5 shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <span>Metric Separation: Installed Capacity Target (GW) vs Modeled Generation (TWh)</span>
+              <span class="text-sm">Metric Incompatibility: Installed Capacity (GW) vs. Electricity Generated (TWh)</span>
             </span>
-            <span class="font-mono text-amber-200">
+            <span class="font-mono text-amber-200 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 self-start sm:self-auto">
               Target Capacity Share: {{ scenarioComparison.targetPowerCapacitySharePct | number:'1.1-1' }}%
             </span>
           </div>
-          <p class="text-xs text-amber-200/90 leading-relaxed">
-            Direct percentage comparison and gap tracking are strictly disabled. The cited target applies to installed nameplate capacity (GW). Comparing capacity percentages directly to electrical generation percentages (TWh) is methodologically invalid because non-fossil resources (such as solar PV with ~18–25% capacity factor) generate substantially fewer kilowatt-hours per installed megawatt than base-load thermal generation.
-          </p>
+
+          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-amber-500/20 text-xs text-amber-100/90 space-y-2">
+            <p class="font-semibold text-white">
+              "This national target measures how much generating capacity is installed. Your scenario measures how much electricity is produced. We cannot calculate a valid progress percentage from these two different measurements."
+            </p>
+            <p class="leading-relaxed text-slate-300">
+              <strong>Why are these metrics incompatible?</strong> Capacity (GW) measures equipment size or peak plant potential—like the horsepower of an engine. Generation (TWh) measures actual electrical output over an entire year—like miles driven. Because clean resources like solar only generate when sunlight is available (~18–25% capacity factor), 1 GW of solar generates far less annual electricity than 1 GW of continuous thermal or nuclear power.
+            </p>
+            <p class="leading-relaxed text-slate-400 text-[11px]">
+              Direct percentage progress is suppressed by CarbonScope's scientific guardrails to avoid misleading target achievement claims.
+            </p>
+          </div>
         </div>
 
         <!-- Non-Party Treaty Withdrawal Indicator -->

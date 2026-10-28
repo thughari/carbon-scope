@@ -116,4 +116,40 @@ describe('AppComponent', () => {
     app.setActiveTab('dashboard');
     expect(app.activeTab).toBe('dashboard');
   });
+
+  it('should render welcoming FTUX hero with 3 primary action cards on Overview', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.textContent).toContain('Track Global Greenhouse Gas Emissions & Test Real Clean Energy Solutions');
+    expect(compiled.textContent).toContain('Explore Emissions');
+    expect(compiled.textContent).toContain('Simulate a Cleaner Future');
+    expect(compiled.textContent).toContain('Understand Climate Targets');
+    expect(compiled.textContent).not.toContain('Phase 4');
+    expect(compiled.textContent).not.toContain('Phase 3');
+  });
+
+  it('should toggle FTUX guide visibility when toggleWelcome is called', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.welcomeDismissed).toBeFalse();
+
+    app.toggleWelcome();
+    expect(app.welcomeDismissed).toBeTrue();
+
+    app.toggleWelcome();
+    expect(app.welcomeDismissed).toBeFalse();
+  });
+
+  it('should display plain-language navigation tab labels', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.textContent).toContain('Overview');
+    expect(compiled.textContent).toContain('Energy Simulator');
+    expect(compiled.textContent).toContain('Climate Targets');
+    expect(compiled.textContent).toContain('Data & Sources');
+  });
 });
