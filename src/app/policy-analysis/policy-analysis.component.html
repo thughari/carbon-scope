@@ -1,0 +1,654 @@
+<div class="space-y-6">
+
+  <!-- Top Hero & Context Bar -->
+  <div class="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-indigo-950/40 border border-white/10 backdrop-blur-md shadow-xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2">
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-sky-500/10 text-sky-400 border border-sky-500/20">
+          Phase 4 Verified Intelligence
+        </span>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          UNFCCC & IPCC AR5 Sourced
+        </span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+        <span>Evidence-Backed Interventions & NDC Tracker</span>
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
+        Compare power-sector decarbonization interventions using traceable peer-reviewed lifecycle literature (IPCC AR5 WGIII Table A.III.2) and evaluate simulated scenarios against authoritative country climate commitments submitted to the UNFCCC.
+      </p>
+    </div>
+
+    <!-- Country Selector & Simulator Action -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-white/10 shadow-inner">
+        <label for="countrySelect" class="text-xs font-semibold text-slate-400">Country:</label>
+        <select
+          id="countrySelect"
+          [(ngModel)]="selectedCountry"
+          (ngModelChange)="onCountrySelect($event)"
+          class="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer">
+          <option *ngFor="let profile of allNdcProfiles" [value]="profile.countryCode" class="bg-slate-900 text-white">
+            {{ profile.countryName }} ({{ profile.countryCode }})
+          </option>
+          <option *ngIf="allNdcProfiles.length === 0" value="IND" class="bg-slate-900 text-white">India (IND)</option>
+        </select>
+      </div>
+
+      <button
+        type="button"
+        (click)="goToSimulator()"
+        class="px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20 hover:shadow-sky-500/30 transition-all flex items-center gap-1.5 active:scale-95">
+        <svg class="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span>Open Simulator</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Boundary & Anti-Fabrication Notice -->
+  <div class="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs text-amber-200">
+    <div class="p-1 rounded-md bg-amber-500/20 text-amber-300 shrink-0 mt-0.5">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+    <div class="space-y-1">
+      <p class="font-bold text-amber-300">Methodological Accounting Boundary & Traceability Guardrail</p>
+      <p class="text-amber-200/90 leading-relaxed">
+        CarbonScope does not fabricate unharmonized regional LCOE costs, localized capacity factors, or speculative NDC achievement claims. Direct operational stack emissions (Scope 1) and global cradle-to-grave lifecycle emissions (Scope 1–3) are strictly separated. <strong>Net lifecycle abatement cannot be directly subtracted from a national territorial greenhouse gas inventory</strong> without violating international accounting boundaries.
+      </p>
+    </div>
+  </div>
+
+  <!-- Sub-Navigation Navigation Tabs -->
+  <div class="flex items-center gap-2 border-b border-white/10 pb-2">
+    <button
+      type="button"
+      (click)="activeSubTab = 'all'"
+      [ngClass]="activeSubTab === 'all' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
+      class="px-3 py-1.5 rounded-lg text-xs transition-all">
+      All Policy Intelligence
+    </button>
+    <button
+      type="button"
+      (click)="activeSubTab = 'evidence'"
+      [ngClass]="activeSubTab === 'evidence' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
+      class="px-3 py-1.5 rounded-lg text-xs transition-all">
+      Interventions Evidence Matrix (8)
+    </button>
+    <button
+      type="button"
+      (click)="activeSubTab = 'ndc'"
+      [ngClass]="activeSubTab === 'ndc' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
+      class="px-3 py-1.5 rounded-lg text-xs transition-all">
+      UNFCCC NDC Commitment Tracker
+    </button>
+    <button
+      type="button"
+      (click)="activeSubTab = 'comparison'"
+      [ngClass]="activeSubTab === 'comparison' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' : 'text-slate-400 hover:text-white bg-slate-900/60'"
+      class="px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5">
+      <span>Scenario-to-NDC Alignment</span>
+      <span *ngIf="scenario" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="py-16 text-center text-slate-400 animate-pulse">
+    <div class="inline-block w-8 h-8 border-2 border-sky-400 border-t-transparent rounded-full animate-spin mb-3"></div>
+    <p class="text-xs font-semibold">Loading verified climate evidence & NDC registry profiles...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs">
+    <p class="font-bold">Data Access Notice:</p>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div *ngIf="!loading && !errorMessage" class="space-y-8">
+
+    <!-- ========================================================================================= -->
+    <!-- SECTION 1: EVIDENCE-BACKED INTERVENTION COMPARISON MATRIX -->
+    <!-- ========================================================================================= -->
+    <section *ngIf="activeSubTab === 'all' || activeSubTab === 'evidence'" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+            <span>Evidence-Backed Decarbonization Interventions</span>
+            <span class="text-xs font-normal text-slate-400 font-mono">(IPCC AR5 WGIII Table A.III.2)</span>
+          </h3>
+          <p class="text-xs text-slate-400">
+            Literature-harmonized emission factors, lifecycle ranges, technology boundaries, and physical implementation limits.
+          </p>
+        </div>
+
+        <!-- Category Filter Chips -->
+        <div class="flex items-center p-1 rounded-xl bg-slate-950/80 border border-white/10 self-start sm:self-auto">
+          <button
+            type="button"
+            (click)="filterInterventions('ALL')"
+            [ngClass]="selectedCategory === 'ALL' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:text-white'"
+            class="px-2.5 py-1 rounded-lg text-[11px] transition-all">
+            All (8)
+          </button>
+          <button
+            type="button"
+            (click)="filterInterventions('CLEAN_GENERATION')"
+            [ngClass]="selectedCategory === 'CLEAN_GENERATION' ? 'bg-emerald-600 text-white font-bold' : 'text-slate-400 hover:text-white'"
+            class="px-2.5 py-1 rounded-lg text-[11px] transition-all">
+            Clean Additions (5)
+          </button>
+          <button
+            type="button"
+            (click)="filterInterventions('FOSSIL_DISPLACEMENT')"
+            [ngClass]="selectedCategory === 'FOSSIL_DISPLACEMENT' ? 'bg-rose-600 text-white font-bold' : 'text-slate-400 hover:text-white'"
+            class="px-2.5 py-1 rounded-lg text-[11px] transition-all">
+            Fossil Reductions (3)
+          </button>
+        </div>
+      </div>
+
+      <!-- Intervention Grid Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          *ngFor="let tech of filteredInterventions"
+          class="p-4 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md hover:border-sky-500/40 transition-all flex flex-col justify-between space-y-3 relative overflow-hidden">
+
+          <!-- Provisional Oil Warning Ribbon -->
+          <div *ngIf="tech.isProvisional" class="absolute top-0 right-0 bg-amber-500/20 text-amber-300 border-b border-l border-amber-500/30 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-bl-lg">
+            Provisional / Unverified
+          </div>
+
+          <div class="space-y-2">
+            <!-- Technology Header -->
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border"
+                  [ngClass]="getCategoryBadgeClass(tech.category)">
+                  {{ tech.category === 'CLEAN_GENERATION' ? 'Clean Addition' : 'Fossil Displacement' }}
+                </span>
+                <h4 class="text-sm font-bold text-white mt-1">{{ tech.displayName }}</h4>
+              </div>
+            </div>
+
+            <!-- Emission Factor Metrics -->
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+              <div class="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+                <span class="text-[10px] text-slate-400 block font-medium">Direct (Stack)</span>
+                <span class="text-xs font-mono font-bold text-white">
+                  {{ tech.directFactorGco2PerKwh | number:'1.0-0' }}
+                  <span class="text-[9px] text-slate-400 font-sans">g/kWh</span>
+                </span>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+                <span class="text-[10px] text-slate-400 block font-medium">Lifecycle (Median)</span>
+                <span class="text-xs font-mono font-bold text-sky-300">
+                  {{ tech.lifecycleFactorMedianGco2PerKwh | number:'1.0-0' }}
+                  <span class="text-[9px] text-slate-400 font-sans">g/kWh</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Literature Uncertainty Range Bar -->
+            <div class="p-2.5 rounded-xl bg-slate-950/40 border border-white/5 space-y-1.5">
+              <div class="flex items-center justify-between text-[10px] text-slate-400">
+                <span>Literature Range:</span>
+                <span class="font-mono text-slate-300 font-bold">
+                  {{ tech.lifecycleFactorMinGco2PerKwh | number:'1.0-0' }} – {{ tech.lifecycleFactorMaxGco2PerKwh | number:'1.0-0' }} gCO₂e/kWh
+                </span>
+              </div>
+              <!-- Visual Indicator Bar -->
+              <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden relative">
+                <div
+                  class="h-full rounded-full bg-gradient-to-r"
+                  [ngClass]="tech.category === 'CLEAN_GENERATION' ? 'from-emerald-500 to-sky-400' : 'from-amber-500 to-rose-500'"
+                  [style.width.%]="(tech.lifecycleFactorMedianGco2PerKwh / 1000) * 100">
+                </div>
+              </div>
+            </div>
+
+            <!-- Unavailable Metrics Transparency Indicators -->
+            <div class="space-y-1 pt-1">
+              <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-white/5 text-[10px]">
+                <span class="text-slate-400">Levelized Cost (LCOE):</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-800 text-slate-300 border border-white/10"
+                      title="{{ tech.lcoeUnavailableReason }}">
+                  UNAVAILABLE
+                </span>
+              </div>
+              <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-white/5 text-[10px]">
+                <span class="text-slate-400">Capacity Factor:</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-800 text-slate-300 border border-white/10"
+                      title="{{ tech.capacityFactorUnavailableReason }}">
+                  UNAVAILABLE
+                </span>
+              </div>
+            </div>
+
+            <!-- Provenance & Citation -->
+            <div class="text-[10px] text-slate-400 pt-1 flex items-center justify-between">
+              <span class="truncate" title="{{ tech.sourceCitation }}">{{ tech.sourceCitation }}</span>
+              <span class="font-mono font-bold text-slate-300 shrink-0 ml-1">({{ tech.publicationYear }})</span>
+            </div>
+          </div>
+
+          <!-- Physical Constraints Accordion Toggle -->
+          <div class="pt-2 border-t border-white/5">
+            <button
+              type="button"
+              (click)="toggleTechAccordion(tech.technologyId)"
+              class="w-full py-1 px-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-[10px] text-slate-300 font-semibold flex items-center justify-between transition-colors">
+              <span>Physical Limitations ({{ tech.physicalLimitations.length }})</span>
+              <svg class="w-3 h-3 transform transition-transform" [ngClass]="expandedTechId === tech.technologyId ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <!-- Expanded Details -->
+            <div *ngIf="expandedTechId === tech.technologyId" class="mt-2 p-2.5 rounded-xl bg-slate-950/90 border border-white/10 space-y-2 text-[10px] text-slate-300 animate-fade-in">
+              <div>
+                <span class="font-bold text-sky-400 block mb-0.5">Technology Scope:</span>
+                <p class="text-slate-400 leading-tight">{{ tech.technologyScope }}</p>
+              </div>
+              <div>
+                <span class="font-bold text-sky-400 block mb-0.5">Geographic Applicability:</span>
+                <p class="text-slate-400 leading-tight">{{ tech.geographicApplicability }}</p>
+              </div>
+              <div>
+                <span class="font-bold text-amber-400 block mb-1">Key Dispatch & Physical Constraints:</span>
+                <ul class="list-disc list-inside space-y-1 text-slate-300">
+                  <li *ngFor="let lim of tech.physicalLimitations">{{ lim }}</li>
+                </ul>
+              </div>
+              <div *ngIf="tech.provisionalWarning" class="p-2 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[9px]">
+                {{ tech.provisionalWarning }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================================= -->
+    <!-- SECTION 2: OFFICIAL UNFCCC NDC COMMITMENT TRACKER -->
+    <!-- ========================================================================================= -->
+    <section *ngIf="activeSubTab === 'all' || activeSubTab === 'ndc'" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+            <span>Authoritative Nationally Determined Contribution (NDC)</span>
+            <span class="text-xs font-normal text-slate-400 font-mono">(UNFCCC Interim Registry)</span>
+          </h3>
+          <p class="text-xs text-slate-400">
+            Official climate policy commitments, emission intensity targets, base years, and sectoral scopes submitted under the Paris Agreement.
+          </p>
+        </div>
+
+        <a
+          [href]="countryNdc?.unfcccRegistryUrl || 'https://unfccc.int/NDCREG'"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-sky-400 border border-sky-500/20 text-xs font-semibold transition-all">
+          <span>View in UNFCCC Registry</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Country NDC Header Card -->
+      <div *ngIf="countryNdc" class="p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-md space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-white/10 pb-4">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-lg font-black text-white">{{ countryNdc.countryName }}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-sky-300 border border-white/10">
+                {{ countryNdc.countryCode }}
+              </span>
+              <span *ngIf="countryNdc.activeNdcCycle" class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                {{ countryNdc.activeNdcCycle }}
+              </span>
+              <span *ngIf="countryNdc.policyReviewStatus === 'JOINT_EU_FULFILMENT'" class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                EU Member State — Joint Fulfilment
+              </span>
+              <span *ngIf="countryNdc.treatyParticipationStatus === 'WITHDRAWN_NON_PARTY'" class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                Non-Party (Withdrawn Effective {{ countryNdc.treatyWithdrawalEffectiveDate || 'Jan 27, 2026' }})
+              </span>
+            </div>
+            <p class="text-xs text-slate-300 font-medium mt-1">{{ countryNdc.documentTitle }}</p>
+            <p *ngIf="countryNdc.previousSubmissionsSummary" class="text-[11px] text-slate-400 mt-0.5">
+              <span class="text-slate-500 font-semibold">Predecessors:</span> {{ countryNdc.previousSubmissionsSummary }}
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <div class="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+              <span class="text-[10px] text-slate-400 block">Latest Submission</span>
+              <span class="font-mono font-bold text-slate-200">{{ countryNdc.latestSubmissionDate || countryNdc.submissionDate }}</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+              <span class="text-[10px] text-slate-400 block">Primary Target Horizon</span>
+              <span class="font-mono font-bold text-sky-400">{{ countryNdc.targetYearPrimary }}</span>
+            </div>
+            <div *ngIf="countryNdc.verificationDate" class="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+              <span class="text-[10px] text-slate-400 block">Audit Verified</span>
+              <span class="font-mono font-bold text-emerald-400">{{ countryNdc.verificationDate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Treaty Withdrawal Notice Banner (USA) -->
+        <div *ngIf="countryNdc.treatyParticipationStatus === 'WITHDRAWN_NON_PARTY' || countryNdc.policyReviewStatus === 'WITHDRAWN_PARIS_AGREEMENT'" class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-200 flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <span class="font-bold text-rose-300 block mb-0.5">UNFCCC Treaty Participation Notice: Withdrawal in Effect (Effective January 27, 2026)</span>
+            <span>The United States' formal withdrawal from the Paris Agreement took effect on <strong>January 27, 2026</strong> pursuant to Article 28 following executive notification. The United States is currently a Non-Party to the Paris Agreement. Historical targets deposited in December 2024 (61–66% by 2035) and April 2021 (50–52% by 2030) are preserved strictly for analytical and historical tracking; they carry no active legal treaty force.</span>
+          </div>
+        </div>
+
+        <!-- Joint EU Member State Notice Banner -->
+        <div *ngIf="countryNdc.policyReviewStatus === 'JOINT_EU_FULFILMENT'" class="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-200 flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <span class="font-bold text-indigo-300 block mb-0.5">EU Member State Multi-Level Governance Notice:</span>
+            <span>The Paris Agreement NDC is submitted jointly by the European Union and its 27 Member States. National electricity and sectoral targets are enacted via national legislation and National Energy and Climate Plans (NECPs), not separate sovereign NDCs. CarbonScope explicitly distinguishes EU-wide joint NDC commitments from domestic national statutes.</span>
+          </div>
+        </div>
+
+        <!-- Long-Term Decarbonization Goal -->
+        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <div>
+            <span class="font-bold text-indigo-300 block mb-0.5">Long-Term National Climate Strategy:</span>
+            <span>{{ countryNdc.longTermGoal }}</span>
+          </div>
+        </div>
+
+        <!-- Individual Verified NDC Targets Grid -->
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Documented Target Commitments ({{ countryNdc.targets.length }})</h4>
+            <span class="text-[10px] text-slate-500">Categorized by Provenance & Legal Basis</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div
+              *ngFor="let target of countryNdc.targets"
+              class="p-3.5 rounded-xl bg-slate-950/60 border border-white/10 space-y-2 flex flex-col justify-between">
+
+              <div class="space-y-2">
+                <!-- Badges: Classification, Currency, Type, Commitment -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span *ngIf="target.targetClassification" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+                    [ngClass]="getClassificationBadgeClass(target.targetClassification)">
+                    {{ getClassificationLabel(target.targetClassification) }}
+                  </span>
+                  <span *ngIf="target.targetCurrencyStatus" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+                    [ngClass]="getCurrencyBadgeClass(target.targetCurrencyStatus)">
+                    {{ getCurrencyLabel(target.targetCurrencyStatus) }}
+                  </span>
+                  <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+                    [ngClass]="getTargetTypeBadgeClass(target.targetType)">
+                    {{ target.targetType }}
+                  </span>
+                  <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
+                    [ngClass]="target.commitmentStatus === 'UNCONDITIONAL' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'">
+                    {{ target.commitmentStatus }}
+                  </span>
+                </div>
+
+                <h5 class="text-xs font-bold text-white">{{ target.targetTitle }}</h5>
+
+                <!-- Key Target Values -->
+                <div class="p-2 rounded-lg bg-slate-900/80 border border-white/5 flex items-center justify-between text-xs">
+                  <span class="text-slate-400 text-[11px]">Commitment:</span>
+                  <span class="font-mono font-black text-sky-300">
+                    {{ target.targetValue ? (target.targetValue + ' ' + target.targetUnit) : target.targetRange }}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-[10px]">
+                  <div class="p-1.5 rounded bg-slate-900/60 border border-white/5">
+                    <span class="text-slate-400 block">Baseline Year:</span>
+                    <span class="font-mono font-bold text-slate-200">{{ target.baselineYear ? target.baselineYear : 'N/A' }}</span>
+                  </div>
+                  <div class="p-1.5 rounded bg-slate-900/60 border border-white/5">
+                    <span class="text-slate-400 block">Target Year:</span>
+                    <span class="font-mono font-bold text-sky-300">{{ target.targetYear }}</span>
+                  </div>
+                </div>
+
+                <p class="text-[11px] text-slate-300 leading-tight">{{ target.officialDescription }}</p>
+
+                <!-- Legal Basis Citation -->
+                <div *ngIf="target.legalBasisCitation" class="p-2 rounded bg-slate-900/80 border border-white/5 text-[10px] text-slate-400">
+                  <span class="font-bold text-slate-300 block mb-0.5">Authoritative Legal Basis:</span>
+                  {{ target.legalBasisCitation }}
+                </div>
+
+                <div *ngIf="target.powerSectorImplication" class="p-2 rounded bg-sky-950/40 border border-sky-800/30 text-[10px] text-sky-200">
+                  <span class="font-bold text-sky-300 block mb-0.5">Power Sector Implication:</span>
+                  {{ target.powerSectorImplication }}
+                </div>
+              </div>
+
+              <!-- Caveats -->
+              <div *ngIf="target.interpretationCaveats && target.interpretationCaveats.length > 0" class="pt-2 border-t border-white/5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-amber-400/80 block mb-1">Interpretation Caveats:</span>
+                <ul class="list-disc list-inside space-y-0.5 text-[10px] text-slate-400">
+                  <li *ngFor="let cav of target.interpretationCaveats">{{ cav }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================================= -->
+    <!-- SECTION 3: SCENARIO-TO-NDC COMMITMENT COMPARISON ENGINE -->
+    <!-- ========================================================================================= -->
+    <section *ngIf="activeSubTab === 'all' || activeSubTab === 'comparison'" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+            <span>Scenario-to-Commitment Comparison Engine</span>
+            <span *ngIf="scenarioComparison" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
+              [ngClass]="getAlignmentBadgeClass(scenarioComparison.alignmentStatus)">
+              {{ scenarioComparison.alignmentStatus }}
+            </span>
+          </h3>
+          <p class="text-xs text-slate-400">
+            Direct boundary-aware evaluation of simulated power sector interventions against national Paris Agreement NDC pledges.
+          </p>
+        </div>
+      </div>
+
+      <!-- No Scenario Prompt -->
+      <div *ngIf="!scenarioComparison && !scenario" class="p-6 rounded-2xl bg-slate-900/60 border border-dashed border-white/20 text-center space-y-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h4 class="text-sm font-bold text-white">No Active Scenario Loaded</h4>
+        <p class="text-xs text-slate-400 max-w-md mx-auto">
+          Run a decarbonization simulation for {{ selectedCountry }} in the Decarbonization Simulator tab to see how your simulated fuel displacement relates to official NDC targets.
+        </p>
+        <button
+          type="button"
+          (click)="goToSimulator()"
+          class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all">
+          Launch Simulator for {{ selectedCountry }}
+        </button>
+      </div>
+
+      <!-- Active Comparison Card -->
+      <div *ngIf="scenarioComparison" class="p-5 rounded-2xl bg-slate-900/70 border border-white/10 backdrop-blur-md space-y-5 animate-fade-in">
+
+        <!-- Alignment Summary Banner -->
+        <div class="p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3"
+          [ngClass]="getAlignmentBadgeClass(scenarioComparison.alignmentStatus)">
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-[10px] uppercase font-bold tracking-wider block">Policy Alignment Assessment</span>
+              <span *ngIf="scenarioComparison.comparedTargetClassification" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+                [ngClass]="getClassificationBadgeClass(scenarioComparison.comparedTargetClassification)">
+                {{ getClassificationLabel(scenarioComparison.comparedTargetClassification) }}
+              </span>
+              <span *ngIf="scenarioComparison.comparedTargetCurrencyStatus" class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border"
+                [ngClass]="getCurrencyBadgeClass(scenarioComparison.comparedTargetCurrencyStatus)">
+                {{ getCurrencyLabel(scenarioComparison.comparedTargetCurrencyStatus) }}
+              </span>
+            </div>
+            <p class="text-sm font-bold text-white">{{ scenarioComparison.alignmentSummary }}</p>
+            <p *ngIf="scenarioComparison.comparedTargetTitle" class="text-xs text-slate-300">
+              <span class="text-slate-400 font-semibold">Evaluated Benchmark:</span> {{ scenarioComparison.comparedTargetTitle }}
+            </p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold uppercase tracking-wider border shrink-0"
+            [ngClass]="getAlignmentBadgeClass(scenarioComparison.alignmentStatus)">
+            {{ scenarioComparison.alignmentStatus }}
+          </span>
+        </div>
+
+        <!-- Scope Mismatch Warning & Explanation -->
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-white/10 space-y-2">
+          <div class="flex items-center gap-2 text-xs font-bold text-amber-300">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Methodological Boundary & Metric Equivalence Analysis</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            {{ scenarioComparison.scopeMismatchExplanation }}
+          </p>
+        </div>
+
+        <!-- Modeled Scenario Metrics vs Baseline -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+            <span class="text-[10px] text-slate-400 block font-medium">Clean Added (TWh)</span>
+            <span class="text-sm font-mono font-bold text-emerald-400">
+              {{ scenarioComparison.requestedCleanTwh | number:'1.1-1' }}
+            </span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+            <span class="text-[10px] text-slate-400 block font-medium">Fossil Displaced (TWh)</span>
+            <span class="text-sm font-mono font-bold text-sky-400">
+              {{ scenarioComparison.displacedFossilTwh | number:'1.1-1' }}
+            </span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+            <span class="text-[10px] text-slate-400 block font-medium">Direct Avoided (Scope 1)</span>
+            <span class="text-sm font-mono font-bold text-white">
+              {{ scenarioComparison.avoidedDirectMt | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-sans">MtCO₂</span>
+            </span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+            <span class="text-[10px] text-slate-400 block font-medium">Net Lifecycle Avoided</span>
+            <span class="text-sm font-mono font-bold text-indigo-300">
+              {{ scenarioComparison.netAvoidedLifecycleMt | number:'1.2-2' }} <span class="text-[10px] text-slate-400 font-sans">MtCO₂e</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Non-Comparable Metric Indicator for Installed Capacity -->
+        <div *ngIf="scenarioComparison.comparabilityStatus === 'NON_COMPARABLE_CAPACITY_VS_GENERATION'"
+          class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-amber-300">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Metric Separation: Installed Capacity Target (GW) vs Modeled Generation (TWh)</span>
+            </span>
+            <span class="font-mono text-amber-200">
+              Target Capacity Share: {{ scenarioComparison.targetPowerCapacitySharePct | number:'1.1-1' }}%
+            </span>
+          </div>
+          <p class="text-xs text-amber-200/90 leading-relaxed">
+            Direct percentage comparison and gap tracking are strictly disabled. The cited target applies to installed nameplate capacity (GW). Comparing capacity percentages directly to electrical generation percentages (TWh) is methodologically invalid because non-fossil resources (such as solar PV with ~18–25% capacity factor) generate substantially fewer kilowatt-hours per installed megawatt than base-load thermal generation.
+          </p>
+        </div>
+
+        <!-- Non-Party Treaty Withdrawal Indicator -->
+        <div *ngIf="scenarioComparison.comparabilityStatus === 'NON_PARTY_TREATY_WITHDRAWN'"
+          class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/25 space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-rose-300">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Legal Treaty Inactive: Non-Party Status Under Paris Agreement</span>
+            </span>
+            <span class="font-mono text-rose-200">
+              Withdrawal Effective: {{ countryNdc?.treatyWithdrawalEffectiveDate || '2026-01-27' }}
+            </span>
+          </div>
+          <p class="text-xs text-rose-200/90 leading-relaxed">
+            Direct NDC compliance tracking and achievement evaluation are disabled. The United States completed its withdrawal from the Paris Agreement on January 27, 2026. Avoided power sector emissions in simulated scenarios cannot be credited against an active international treaty commitment.
+          </p>
+        </div>
+
+        <!-- Clean Power Share Progression Bar (ONLY when genuine generation target exists) -->
+        <div *ngIf="scenarioComparison.comparabilityStatus === 'GENERATION_METRIC_COMPARABLE' && (scenarioComparison.targetPowerCleanGenerationSharePct || scenarioComparison.targetPowerCleanSharePct)"
+          class="p-4 rounded-xl bg-slate-950/60 border border-white/5 space-y-3">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-white">Electricity Mix Clean Power Progression</span>
+            <span class="text-slate-400 font-mono text-[11px]">
+              Baseline: {{ scenarioComparison.baselineCleanSharePct | number:'1.1-1' }}% &rarr; Simulated: {{ scenarioComparison.simulatedCleanSharePct | number:'1.1-1' }}% &rarr; Target: {{ (scenarioComparison.targetPowerCleanGenerationSharePct || scenarioComparison.targetPowerCleanSharePct) | number:'1.1-1' }}%
+            </span>
+          </div>
+
+          <!-- Progress Bar Track -->
+          <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden flex relative">
+            <!-- Baseline Portion -->
+            <div
+              class="h-full bg-sky-600"
+              [style.width.%]="scenarioComparison.baselineCleanSharePct"
+              title="Historical Observed Clean Share (Ember 2023)">
+            </div>
+            <!-- Scenario Increment Portion -->
+            <div
+              class="h-full bg-emerald-400"
+              [style.width.%]="scenarioComparison.cleanShareDeltaPct"
+              title="Modeled Scenario Addition">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded bg-sky-600"></span> Historical Baseline ({{ scenarioComparison.baselineCleanSharePct | number:'1.1-1' }}%)
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded bg-emerald-400"></span> Scenario Delta (+{{ scenarioComparison.cleanShareDeltaPct | number:'1.1-1' }}%)
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded border border-dashed border-amber-400"></span> Target ({{ (scenarioComparison.targetPowerCleanGenerationSharePct || scenarioComparison.targetPowerCleanSharePct) | number:'1.1-1' }}%)
+            </span>
+            <span *ngIf="scenarioComparison.cleanShareDistanceToTargetPct !== null && scenarioComparison.cleanShareDistanceToTargetPct !== undefined" class="font-mono text-amber-300">
+              Distance: {{ scenarioComparison.cleanShareDistanceToTargetPct | number:'1.1-1' }}%
+            </span>
+          </div>
+        </div>
+
+        <!-- Methodological Caveats List -->
+        <div class="space-y-2 pt-2 border-t border-white/5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Scientific & Governance Disclaimers:</span>
+          <ul class="list-disc list-inside space-y-1 text-xs text-slate-300">
+            <li *ngFor="let cav of scenarioComparison.methodologicalCaveats">{{ cav }}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -14,14 +14,38 @@
     </div>
   </div>
 
-  <div class="glass-card p-4 sm:p-5 h-[340px] sm:h-[390px] flex flex-col bg-slate-900/50 border border-white/10 rounded-2xl">
+  <div class="glass-card p-4 sm:p-5 h-[340px] sm:h-[400px] flex flex-col bg-slate-900/50 border border-white/10 rounded-2xl relative">
     <div class="flex items-center justify-between mb-2 shrink-0">
       <div>
-        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide">Multi-Year Trajectory</h3>
-        <p class="text-[11px] text-slate-400">Empirical historical consensus ({{ trendRangeText }})</p>
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm sm:text-base font-bold text-white tracking-wide">Historical Emissions & Scenario Abatement</h3>
+          <span *ngIf="currentScenario" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Illustrative Scenario Active
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">
+          Empirical historical observations ({{ trendRangeText }})
+          <span *ngIf="currentScenario && showScenarioOverlay" class="text-emerald-400 font-medium">
+            • Avoided: {{ scenarioMedianText }} (Sensitivity: {{ scenarioRangeText }})
+          </span>
+        </p>
       </div>
-      <div class="text-[10px] sm:text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-1 rounded-lg shrink-0">
-        Empirical Trend
+      <div class="flex items-center gap-1.5 shrink-0">
+        <span *ngIf="!currentScenario" class="text-[10px] sm:text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-1 rounded-lg">
+          Empirical Trend
+        </span>
+        <button *ngIf="currentScenario"
+                type="button"
+                (click)="toggleScenarioOverlay()"
+                [ngClass]="showScenarioOverlay ? 'bg-emerald-600/30 text-emerald-300 border-emerald-500/50' : 'bg-slate-800/60 text-slate-400 border-slate-700'"
+                class="text-[10px] sm:text-[11px] font-semibold border px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          <span>{{ showScenarioOverlay ? 'Overlay On' : 'Overlay Off' }}</span>
+        </button>
       </div>
     </div>
     <div class="flex-1 w-full min-h-0 overflow-hidden">

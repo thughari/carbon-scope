@@ -11,6 +11,7 @@ import { WorldMapComponent } from './world-map/world-map.component';
 
 import {
   EmissionsOverviewResponse,
+  ProvenanceDto,
   SectorSummaryResponse,
   SourceInfoItem,
   SourcesInfoResponse,
@@ -22,6 +23,9 @@ import { SystemStatusService, HealthTelemetry } from './system-status.service';
 
 import { ALL_COUNTRIES, APP_CONFIG } from '../models/app.constants';
 import { Country } from '../models/country-data';
+import { DecarbonizationSimulatorComponent } from './decarbonization-simulator/decarbonization-simulator.component';
+import { PolicyAnalysisComponent } from './policy-analysis/policy-analysis.component';
+import { DecarbonizationScenarioResponse } from '../models/simulator.models';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +38,9 @@ import { Country } from '../models/country-data';
     SectorChartsComponent,
     SectorTableComponent,
     ChatPanelComponent,
-    WorldMapComponent
+    WorldMapComponent,
+    DecarbonizationSimulatorComponent,
+    PolicyAnalysisComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
@@ -42,10 +48,16 @@ import { Country } from '../models/country-data';
 export class AppComponent implements OnInit {
   title = 'CarbonScope';
 
+  activeTab: 'dashboard' | 'simulator' | 'policy' = 'dashboard';
+
   sidebarWidth = 400;
   isResizing = false;
   isMobileChatOpen = false;
   isSourcesModalOpen = false;
+
+  setActiveTab(tab: 'dashboard' | 'simulator' | 'policy') {
+    this.activeTab = tab;
+  }
 
   loading = false;
   loadingSubsectors = false;
@@ -56,11 +68,15 @@ export class AppComponent implements OnInit {
   headerTotal = 0;
   headerHighestSector = '';
   countryRank: number | null = 3;
-  perCapita = 2.0;
+  perCapita: number | null = 2.0;
   gridIntensity: number | null = 680;
   cleanPower: number | null = 23.5;
   countryName = 'India';
-  dataSourceStatus = 'LIVE_API';
+  dataSourceStatus = 'LIVE_API_OBSERVATION';
+  isPartialOrProvisional = false;
+  temporalCompleteness: string | null = null;
+  provenance: ProvenanceDto | null = null;
+  dataQualityNotes: string | null = null;
 
   headerYearRange: [number, number] = [APP_CONFIG.START_YEAR, APP_CONFIG.END_YEAR];
 
@@ -73,7 +89,7 @@ export class AppComponent implements OnInit {
     country: APP_CONFIG.DEFAULT_COUNTRY,
     sector: null,
     gas: APP_CONFIG.DEFAULT_GAS,
-    year: APP_CONFIG.END_YEAR
+    year: APP_CONFIG.DEFAULT_YEAR
   };
 
   overview: EmissionsOverviewResponse | null = null;
@@ -85,6 +101,7 @@ export class AppComponent implements OnInit {
   trendSeries: { name: string; data: number[] }[] = [];
   historicalTrend: TrendPoint[] = [];
   verifiedSourcesList: SourceInfoItem[] = [];
+  latestScenario: DecarbonizationScenarioResponse | null = null;
 
   constructor(
     private emissions: EmissionsService,
@@ -100,8 +117,25 @@ export class AppComponent implements OnInit {
       this.healthInfo = health;
     });
 
+    if (this.emissions?.activeScenario$) {
+      this.emissions.activeScenario$.subscribe(scenario => {
+        this.latestScenario = scenario;
+      });
+    }
+
     this.loadVerifiedSources();
     this.loadDashboard();
+  }
+
+  onScenarioCalculated(scenario: DecarbonizationScenarioResponse) {
+    this.latestScenario = scenario;
+  }
+
+  onCountryChangeFromPolicy(countryCode: string) {
+    if (this.filters.country !== countryCode) {
+      this.filters.country = countryCode;
+      this.loadDashboard();
+    }
   }
 
   startResizing(event: MouseEvent) {
@@ -191,6 +225,10 @@ export class AppComponent implements OnInit {
         this.cleanPower = res.cleanPowerPercentage;
         this.countryName = res.countryName;
         this.dataSourceStatus = res.dataSourceStatus;
+        this.isPartialOrProvisional = !!res.isPartialOrProvisional;
+        this.temporalCompleteness = res.temporalCompleteness || null;
+        this.provenance = res.provenance || null;
+        this.dataQualityNotes = res.dataQualityNotes || null;
         this.historicalTrend = res.historicalTrend || [];
         if (res.verifiedSources && res.verifiedSources.length > 0) {
           this.verifiedSourcesList = res.verifiedSources;
@@ -201,7 +239,11 @@ export class AppComponent implements OnInit {
       },
       error: (err) => {
         console.error('Overview fetch error:', err);
-        // Fallback to direct sector summary
+        this.dataSourceStatus = 'DATA_UNAVAILABLE';
+        this.isPartialOrProvisional = false;
+        this.temporalCompleteness = 'UNAVAILABLE';
+        this.dataQualityNotes = 'Unable to reach climate analytics service.';
+        this.headerTotal = 0;
         this.loadSectors(selectedYear);
       }
     });

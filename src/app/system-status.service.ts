@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, timer, of } from 'rxjs';
+import { BehaviorSubject, timer, of, Subscription } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
@@ -19,7 +19,7 @@ export interface HealthTelemetry {
 }
 
 @Injectable({ providedIn: 'root' })
-export class SystemStatusService {
+export class SystemStatusService implements OnDestroy {
   private readonly healthUrl = `${environment.apiUrl}/api/health`;
 
   private isOnlineSubject = new BehaviorSubject<boolean>(false);
@@ -28,19 +28,18 @@ export class SystemStatusService {
   private healthSubject = new BehaviorSubject<HealthTelemetry | null>(null);
   public health$ = this.healthSubject.asObservable();
 
+  private timerSub?: Subscription;
+
   constructor(private http: HttpClient) {
     this.startHealthCheck();
   }
 
   private startHealthCheck() {
-    timer(0, 30000)
+    this.timerSub = timer(0, 30000)
       .pipe(
         switchMap(() =>
           this.http.get<HealthTelemetry>(this.healthUrl).pipe(
-            catchError((err) => {
-              console.warn('Backend health check error:', err);
-              return of(null);
-            })
+            catchError(() => of(null))
           )
         )
       )
@@ -53,5 +52,9 @@ export class SystemStatusService {
           this.healthSubject.next(null);
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    this.timerSub?.unsubscribe();
   }
 }

@@ -9,14 +9,76 @@ import {
   EmissionsOverviewResponse,
   SourcesInfoResponse,
 } from '../models/emissions.models';
-import { Observable } from 'rxjs';
+import {
+  CountryElectricityProfile,
+  DecarbonizationScenarioRequest,
+  DecarbonizationScenarioResponse,
+} from '../models/simulator.models';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+
+import {
+  InterventionEvidence,
+  CountryNdcProfile,
+  ScenarioNdcComparison,
+  PolicyComparisonResponse
+} from '../models/policy.models';
 
 @Injectable({ providedIn: 'root' })
 export class EmissionsService {
   private readonly baseUrl = `${environment.apiUrl}/api/emissions`;
+  private readonly simulatorUrl = `${environment.apiUrl}/api/simulator`;
+  private readonly policyUrl = `${environment.apiUrl}/api/policy`;
+
+  private activeScenarioSubject = new BehaviorSubject<DecarbonizationScenarioResponse | null>(null);
+  readonly activeScenario$ = this.activeScenarioSubject.asObservable();
+
+  setActiveScenario(scenario: DecarbonizationScenarioResponse | null) {
+    this.activeScenarioSubject.next(scenario);
+  }
+
+  getActiveScenario(): DecarbonizationScenarioResponse | null {
+    return this.activeScenarioSubject.getValue();
+  }
 
   constructor(private http: HttpClient) {}
+
+  getSimulatorCountries(): Observable<CountryElectricityProfile[]> {
+    return this.http.get<CountryElectricityProfile[]>(`${this.simulatorUrl}/countries`);
+  }
+
+  getSimulatorCountryBaseline(countryCode: string): Observable<CountryElectricityProfile> {
+    return this.http.get<CountryElectricityProfile>(`${this.simulatorUrl}/baseline/${countryCode}`);
+  }
+
+  calculateDecarbonizationScenario(request: DecarbonizationScenarioRequest): Observable<DecarbonizationScenarioResponse> {
+    return this.http.post<DecarbonizationScenarioResponse>(`${this.simulatorUrl}/calculate`, request);
+  }
+
+  // --- Phase 4 Policy & NDC Endpoints ---
+  getInterventions(): Observable<InterventionEvidence[]> {
+    return this.http.get<InterventionEvidence[]>(`${this.policyUrl}/interventions`);
+  }
+
+  getInterventionById(techId: string): Observable<InterventionEvidence> {
+    return this.http.get<InterventionEvidence>(`${this.policyUrl}/interventions/${techId}`);
+  }
+
+  getNdcProfiles(): Observable<CountryNdcProfile[]> {
+    return this.http.get<CountryNdcProfile[]>(`${this.policyUrl}/ndc`);
+  }
+
+  getNdcProfile(countryCode: string): Observable<CountryNdcProfile> {
+    return this.http.get<CountryNdcProfile>(`${this.policyUrl}/ndc/${countryCode}`);
+  }
+
+  compareScenarioWithNdc(scenario: DecarbonizationScenarioResponse): Observable<ScenarioNdcComparison> {
+    return this.http.post<ScenarioNdcComparison>(`${this.policyUrl}/compare-scenario`, scenario);
+  }
+
+  getPolicyOverview(countryCode: string): Observable<PolicyComparisonResponse> {
+    return this.http.get<PolicyComparisonResponse>(`${this.policyUrl}/overview/${countryCode}`);
+  }
 
   getOverview(opts: {
     year?: number;

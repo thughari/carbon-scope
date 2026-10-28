@@ -1,8 +1,24 @@
+export interface ProvenanceDto {
+  status: 'LIVE_API_OBSERVATION' | 'STATIC_REFERENCE_BENCHMARK' | 'MODELED_ESTIMATE' | 'DATA_UNAVAILABLE' | string;
+  sourceName?: string;
+  methodology?: string;
+  reportingYear?: number;
+  empirical?: boolean;
+  qualityNotes?: string;
+  isPartialOrProvisional?: boolean;
+  temporalCompleteness?: string;
+  unverifiedFactorWarning?: string | null;
+}
+
 export interface TrendPoint {
   year: number;
   emissionsMt: number;
   worldEmissionsMt: number;
   shareOfGlobal: number;
+  provenance?: string;
+  available?: boolean;
+  isProvisional?: boolean;
+  temporalCompleteness?: string;
 }
 
 export interface SourceInfoItem {
@@ -35,7 +51,7 @@ export interface EmissionsOverviewResponse {
   worldEmissionsMt: number;
   countryRank: number | null;
   percentageOfGlobal: number;
-  perCapitaTonnes: number;
+  perCapitaTonnes: number | null;
   gridCarbonIntensityGco2PerKwh: number | null;
   cleanPowerPercentage: number | null;
   gasBreakdownMt: Record<string, number>;
@@ -44,6 +60,10 @@ export interface EmissionsOverviewResponse {
   verifiedSources: SourceInfoItem[];
   dataReliability: string;
   dataSourceStatus: string;
+  temporalCompleteness?: string;
+  isPartialOrProvisional?: boolean;
+  provenance?: ProvenanceDto;
+  dataQualityNotes?: string;
   responseTimeMs: number;
 }
 
@@ -53,6 +73,8 @@ export interface SectorSummaryResponse {
   filterContinent?: string | null;
   gas: string;
   year: number;
+  dataSourceStatus?: string;
+  provenance?: ProvenanceDto;
 }
 
 export interface SubsectorSummaryResponse {
@@ -62,6 +84,8 @@ export interface SubsectorSummaryResponse {
   filterContinent?: string | null;
   gas: string;
   year: number;
+  dataSourceStatus?: string;
+  provenance?: ProvenanceDto;
 }
 
 export interface CountrySummaryResponse {
@@ -101,11 +125,3 @@ export interface SourcesResponse {
   gas: string;
   year: number;
 }
-
-export const GASES = [
-  { label: 'CO₂ Equivalent (100yr)', value: 'co2e_100yr' },
-  { label: 'CO₂ Equivalent (20yr)', value: 'co2e_20yr' },
-  { label: 'Carbon Dioxide (CO₂)', value: 'co2' },
-  { label: 'Methane (CH₄)', value: 'ch4' },
-  { label: 'Nitrous Oxide (N₂O)', value: 'n2o' },
-];

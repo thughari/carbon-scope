@@ -4,7 +4,8 @@ const currentYear = typeof window !== 'undefined' ? new Date().getFullYear() : 2
 
 export const APP_CONFIG = {
   START_YEAR: 2015,
-  END_YEAR: currentYear >= 2026 ? currentYear : 2026,
+  END_YEAR: 2026,
+  DEFAULT_YEAR: 2024,
   DEFAULT_COUNTRY: 'IND',
   DEFAULT_GAS: 'co2e_100yr'
 };

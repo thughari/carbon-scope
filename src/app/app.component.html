@@ -28,14 +28,56 @@
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Navigation Tab Switcher -->
+        <div class="flex items-center p-1 rounded-xl bg-slate-950/80 border border-white/10 shadow-inner">
+          <button
+            type="button"
+            (click)="setActiveTab('dashboard')"
+            [ngClass]="activeTab === 'dashboard' 
+              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' 
+              : 'text-slate-400 hover:text-white'"
+            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            <span>Overview</span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('simulator')"
+            [ngClass]="activeTab === 'simulator' 
+              ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold shadow-md shadow-sky-500/30' 
+              : 'text-slate-400 hover:text-white'"
+            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 relative">
+            <svg class="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Simulator</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('policy')"
+            [ngClass]="activeTab === 'policy' 
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-md shadow-emerald-500/30' 
+              : 'text-slate-400 hover:text-white'"
+            class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 relative">
+            <svg class="w-3.5 h-3.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>Policy & NDCs</span>
+            <span class="hidden md:inline px-1 py-0.2 rounded text-[9px] font-mono bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">Phase 4</span>
+          </button>
+        </div>
+
         <!-- Verified Sources Button -->
         <button (click)="openSourcesModal()"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold transition-all shadow-sm">
+          class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold transition-all shadow-sm">
           <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
-          <span class="hidden sm:inline">Verified Sources</span>
+          <span>Verified Sources</span>
           <span class="text-[11px] font-mono text-indigo-400">({{ verifiedSourcesList.length || 5 }})</span>
         </button>
 
@@ -61,12 +103,33 @@
     <!-- Scrollable Main Content -->
     <main class="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-5 space-y-5 scroll-smooth flex flex-col">
 
-      <!-- 1. Scope & Filters Bar (Full Width Top Strip) -->
-      <div class="animate-fade-in shrink-0">
-        <app-filters-bar [continents]="continents" [countries]="countries" [sectors]="sectors" [filters]="filters"
-          (filtersChange)="onFiltersChange($event)">
-        </app-filters-bar>
+      <!-- Decarbonization Simulator View (Phase 2 & Phase 3) -->
+      <div *ngIf="activeTab === 'simulator'" class="animate-fade-in">
+        <app-decarbonization-simulator
+          [initialCountryCode]="filters.country || 'IND'"
+          (scenarioCalculated)="onScenarioCalculated($event)"
+          (openPolicyComparison)="setActiveTab('policy')">
+        </app-decarbonization-simulator>
       </div>
+
+      <!-- Policy & NDC Tracker View (Phase 4) -->
+      <div *ngIf="activeTab === 'policy'" class="animate-fade-in">
+        <app-policy-analysis
+          [initialCountryCode]="filters.country || 'IND'"
+          [scenario]="latestScenario"
+          (navigateToSimulator)="setActiveTab('simulator')"
+          (countryChanged)="onCountryChangeFromPolicy($event)">
+        </app-policy-analysis>
+      </div>
+
+      <!-- Dashboard Overview View -->
+      <ng-container *ngIf="activeTab === 'dashboard'">
+        <!-- 1. Scope & Filters Bar (Full Width Top Strip) -->
+        <div class="animate-fade-in shrink-0">
+          <app-filters-bar [continents]="continents" [countries]="countries" [sectors]="sectors" [filters]="filters"
+            (filtersChange)="onFiltersChange($event)">
+          </app-filters-bar>
+        </div>
 
       <!-- 2. Header Stats Cards (Full Width 4-Card Responsive Grid) -->
       <div class="animate-fade-in shrink-0">
@@ -82,6 +145,10 @@
           [cleanPower]="cleanPower"
           [countryName]="countryName"
           [dataSourceStatus]="dataSourceStatus"
+          [isPartialOrProvisional]="isPartialOrProvisional"
+          [temporalCompleteness]="temporalCompleteness"
+          [provenance]="provenance"
+          [dataQualityNotes]="dataQualityNotes"
           (viewSourcesClick)="openSourcesModal()">
         </app-header-stats>
       </div>
@@ -93,7 +160,8 @@
           [trendSeries]="trendSeries"
           [trendYears]="trendYears"
           [historicalTrend]="historicalTrend"
-          [selectedSector]="selectedSector">
+          [selectedSector]="selectedSector"
+          [scenarioResult]="latestScenario">
         </app-sector-charts>
       </div>
 
@@ -105,15 +173,16 @@
         </app-world-map>
       </div>
 
-      <!-- 5. Detailed Sector & Granular Subsector Table -->
-      <div class="animate-fade-in shrink-0" style="animation-delay: 200ms">
-        <app-sector-table
-          [sectorTotals]="sectorTotals"
-          [subsectorData]="subsectorSummary"
-          [isLoadingSubsectors]="loadingSubsectors"
-          (sectorClick)="onSectorClick($event)">
-        </app-sector-table>
-      </div>
+        <!-- 5. Detailed Sector & Granular Subsector Table -->
+        <div class="animate-fade-in shrink-0" style="animation-delay: 200ms">
+          <app-sector-table
+            [sectorTotals]="sectorTotals"
+            [subsectorData]="subsectorSummary"
+            [isLoadingSubsectors]="loadingSubsectors"
+            (sectorClick)="onSectorClick($event)">
+          </app-sector-table>
+        </div>
+      </ng-container>
 
       <div class="flex-1"></div>
 
